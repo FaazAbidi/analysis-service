@@ -1,11 +1,31 @@
-# Celery on Render
+# Analysis Service
 
-This sample application demonstrates how to deploy the Celery distributed task queue on Render. It includes:
+A microservice for handling asynchronous data analysis tasks using R scripts. This service offloads analytical workloads from your main platform, managing the queue processing and execution of data processing jobs.
 
-1. A Flask web application for creating tasks
-2. A Celery worker for processing tasks
-3. Flower, a web monitoring frontend for Celery
-4. Redis as the message broker
+## Features
+
+- REST API for submitting data analysis tasks
+- Asynchronous processing with Celery task queue
+- R script execution for statistical analysis and data transformation
+- Task status monitoring via API endpoints
+- Scalable worker architecture for handling concurrent analysis requests
+
+## Architecture
+
+- **Flask API**: Provides HTTP endpoints for task submission and status checks
+- **Celery Workers**: Handle asynchronous processing of analysis tasks
+- **R Integration**: Executes R scripts for statistical analysis and data processing
+- **Redis**: Acts as message broker for the task queue
+- **Flower**: Web dashboard for monitoring task execution (optional)
+
+## API Endpoints
+
+- `POST /preprocess`: Submit data for analysis
+  - Accepts JSON with a `data` field containing values to analyze
+  - Returns a task ID for tracking the job
+
+- `GET /task/<task_id>`: Check task status
+  - Returns the current state and results (if complete)
 
 ## Local Development
 
@@ -13,15 +33,11 @@ This sample application demonstrates how to deploy the Celery distributed task q
 
 - Python 3.7 or higher
 - Redis (for local development)
+- R with required packages
 
 ### Setup
 
-1. Clone this repository:
-   ```
-   git clone https://github.com/yourusername/flask-celery-render.git
-   cd flask-celery-render
-   ```
-
+1. Clone this repository
 2. Install dependencies:
    ```
    pip install -r requirements.txt
@@ -76,11 +92,6 @@ This sample application demonstrates how to deploy the Celery distributed task q
    docker-compose logs -f
    ```
 
-4. Stop all services:
-   ```
-   docker-compose down
-   ```
-
 ### Using the Makefile
 
 The project includes a Makefile for simpler commands:
@@ -90,17 +101,14 @@ make build      # Build Docker images
 make up         # Start all services
 make down       # Stop all services
 make logs       # View logs from all services
-make ps         # List running containers
 make shell-web  # Open shell in web container
-make clean      # Remove containers
-make clean-all  # Remove containers, volumes, and images
 ```
 
 Run `make help` to see all available commands.
 
 ## Deploying to Render
 
-### Option 1: Using the Blueprint (render.yaml)
+### Using the Blueprint (render.yaml)
 
 1. Fork this repository
 2. Create a new Blueprint instance in your Render dashboard
@@ -113,19 +121,6 @@ Render will automatically create all the required services:
 - Flower dashboard
 - Redis instance for message broker
 
-### Option 2: Manual Deployment
-
-Follow the step-by-step guide at [Render's documentation](https://render.com/docs/deploy-celery) to manually set up the services.
-
-## Architecture
-
-- **app.py**: Flask web application that provides a UI for creating tasks
-- **tasks.py**: Contains Celery task definitions
-- **Dockerfile**: Defines the container image for all services
-- **docker-compose.yml**: Orchestrates all containers
-- **Makefile**: Simplifies common Docker operations
-- **render.yaml**: Configuration for deploying to Render
-
 ## Security Note
 
-The Flower dashboard provides unrestricted access to your Celery tasks and worker information. In a production environment, you should secure it with authentication as described in the [Flower documentation](https://flower.readthedocs.io/en/latest/auth.html). 
+The Flower dashboard provides unrestricted access to your Celery tasks and worker information. In a production environment, you should secure it with authentication as described in the [Flower documentation](https://flower.readthedocs.io/en/latest/auth.html).
