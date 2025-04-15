@@ -1,4 +1,4 @@
-.PHONY: build up down restart logs ps shell-web shell-worker shell-flower clean clean-all help
+.PHONY: build up down restart logs ps shell-web shell-worker clean clean-all help
 
 # Default target
 .DEFAULT_GOAL := help
@@ -15,11 +15,9 @@ help:
 	@echo "  make logs        - Show logs from all services"
 	@echo "  make logs-web    - Show logs from web service"
 	@echo "  make logs-worker - Show logs from worker service"
-	@echo "  make logs-flower - Show logs from flower service"
 	@echo "  make ps          - Show running containers"
 	@echo "  make shell-web   - Open shell in web container"
 	@echo "  make shell-worker - Open shell in worker container"
-	@echo "  make shell-flower - Open shell in flower container"
 	@echo "  make clean       - Remove containers and networks"
 	@echo "  make clean-all   - Remove containers, networks, volumes, and images"
 
@@ -44,9 +42,6 @@ logs-web:
 logs-worker:
 	$(DC) logs -f worker
 
-logs-flower:
-	$(DC) logs -f flower
-
 ps:
 	$(DC) ps
 
@@ -55,9 +50,6 @@ shell-web:
 
 shell-worker:
 	$(DC) exec worker bash || $(DC) exec worker sh
-
-shell-flower:
-	$(DC) exec flower bash || $(DC) exec flower sh
 
 clean:
 	$(DC) down
@@ -69,7 +61,4 @@ run-local:
 	python app.py
 
 run-worker-local:
-	celery --app tasks worker --loglevel info
-
-run-flower-local:
-	celery flower --app tasks --loglevel info 
+	celery --app tasks worker --loglevel info 
