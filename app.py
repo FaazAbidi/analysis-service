@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, render_template
 from tasks import process_with_r
 from celery.result import AsyncResult
+from client.supabase import supabase
 
 app = Flask(__name__)
 
@@ -22,6 +23,8 @@ def preprocess():
             "column2": [value1, value2, ...],
             ...
         }
+        ---------------------
+        file_id in supabase
     }
     """
     try:
@@ -41,12 +44,12 @@ def preprocess():
         
         # Process data with R script (asynchronously)
         task = process_with_r.delay(data_dict)
-        
+
         return jsonify({
             "task_id": task.id,
             "message": "Preprocessing task submitted successfully"
         })
-        
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -83,4 +86,4 @@ def task_status(task_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=8080) 
+    app.run(debug=True, host="0.0.0.0", port=8080)

@@ -23,7 +23,7 @@ def process_with_r(data_dict, output_filename=None):
     Args:
         data_dict (dict): Dictionary containing data to process
         output_filename (str, optional): Name for the output file. If None, a timestamp-based name is used.
-        
+
     Returns:
         dict: The processed data from R
     """
