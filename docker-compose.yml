@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # Redis service (message broker)
@@ -14,7 +14,7 @@ services:
   # Flask web application
   web:
     build: .
-    command: gunicorn app:app --bind 0.0.0.0:8080 --reload
+    command: gunicorn app:app --bind 0.0.0.0:8080 --reload --log-level debug
     ports:
       - "8080:8080"
     depends_on:
@@ -41,4 +41,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  redis-data: 
+  redis-data:

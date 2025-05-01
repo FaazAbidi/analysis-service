@@ -10,7 +10,7 @@ process_test <- function(input_file, output_file) {
   # Read data from input file
   cat("Reading data from", input_file, "\n")
   data <- read.csv(input_file, header = TRUE)
-  
+
   # Add a delay of 10 seconds
   cat("Starting 10 second delay...\n")
   Sys.sleep(10)
