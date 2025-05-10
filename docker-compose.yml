@@ -14,14 +14,12 @@ services:
   # Flask web application
   web:
     build: .
-    command: gunicorn app:app --bind 0.0.0.0:8080 --reload --log-level debug
+    command: gunicorn app:app --bind 0.0.0.0:8080 --reload
     ports:
       - "8080:8080"
     depends_on:
       - redis
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379
-      - CELERY_RESULT_BACKEND=redis://redis:6379
+    env_file: .env
     volumes:
       - .:/app
     restart: unless-stopped
@@ -33,9 +31,10 @@ services:
     depends_on:
       - redis
       - web
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379
-      - CELERY_RESULT_BACKEND=redis://redis:6379
+    # environment:
+    #   - CELERY_BROKER_URL=redis://redis:6379
+    #   - CELERY_RESULT_BACKEND=redis://redis:6379
+    env_file: .env
     volumes:
       - .:/app
     restart: unless-stopped

@@ -5,6 +5,7 @@ import logging
 import os
 import subprocess
 import pandas as pd
+from client.supabase import get_supabase_client
 
 # Configure Celery
 broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 @app.task
-def process_with_r(data_dict, output_filename=None):
+def process_with_r(file_id, output_filename=None):
     """
     Process data with R script in the background.
     
@@ -36,20 +37,30 @@ def process_with_r(data_dict, output_filename=None):
         output_file = f"analysis/temp_output_{timestamp}.csv"
     else:
         output_file = f"analysis/{output_filename}"
-    
+
+    # download file from supabase
+    with open("./unprocessed_files/1745683584448_sample.csv", "wb+") as f:
+        response = (
+            get_supabase_client().storage
+                .from_('raw-data')
+                .download('c4b6ca42-b2f9-40ef-8187-221a2abc09b0/temp/1745683584448_sample.csv')
+        )
+        f.write(response)
+
     try:
         # Convert dict to DataFrame if it's not already
-        if isinstance(data_dict, dict):
-            df = pd.DataFrame(data_dict)
-        elif isinstance(data_dict, pd.DataFrame):
-            df = data_dict
-        else:
-            logger.error(f"Unsupported data type: {type(data_dict)}")
-            return {"error": f"Unsupported data type: {type(data_dict)}", "success": False}
+        # TODO
+        # if isinstance(data_dict, dict):
+        #     df = pd.DataFrame(data_dict)
+        # elif isinstance(data_dict, pd.DataFrame):
+        #     df = data_dict
+        # else:
+        #     logger.error(f"Unsupported data type: {type(data_dict)}")
+        #     return {"error": f"Unsupported data type: {type(data_dict)}", "success": False}
             
-        # Save input data to CSV
-        logger.info(f"Saving input data to {input_file}")
-        df.to_csv(input_file, index=False)
+        # # Save input data to CSV
+        # logger.info(f"Saving input data to {input_file}")
+        # df.to_csv(input_file, index=False)
         
         # Get the directory of the current script
         script_dir = os.path.dirname(os.path.abspath(__file__))

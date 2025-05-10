@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, render_template
 from tasks import process_with_r
 from celery.result import AsyncResult
-from client.supabase import supabase
+import os
 
 app = Flask(__name__)
 
@@ -30,20 +30,19 @@ def preprocess():
     try:
         # Get data from request
         request_json = request.get_json()
-        if not request_json or 'data' not in request_json:
-            return jsonify({"error": "No data provided"}), 400
-            
-        # Get the data dictionary
-        data = request_json['data']
-        
-        # Handle array input by converting to dictionary with 'value' column
-        if isinstance(data, list):
-            data_dict = {"value": data}
-        else:
-            data_dict = data
+        if not request_json or 'file_id' not in request_json:
+            return jsonify({"error": "No data or file_id provided"}), 400
+
+        file_id = request_json.get('file_id')
+
+        # # Handle array input by converting to dictionary with 'value' column
+        # if isinstance(data, list):
+        #     data_dict = {"value": data}
+        # else:
+        #     data_dict = data
         
         # Process data with R script (asynchronously)
-        task = process_with_r.delay(data_dict)
+        task = process_with_r.delay(file_id)
 
         return jsonify({
             "task_id": task.id,
