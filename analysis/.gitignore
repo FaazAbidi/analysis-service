@@ -1,0 +1,9 @@
+# Ignore R data and history files
+.RData
+.Rhistory
+
+# Ignore desktop.ini (Windows system file)
+desktop.ini
+
+# Ignore the input folder and subdirectories
+input/
