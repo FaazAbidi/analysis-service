@@ -5,6 +5,7 @@ import logging
 import os
 import subprocess
 import pandas as pd
+from client.supabase import get_supabase_client
 
 # Configure Celery
 broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")
@@ -16,45 +17,56 @@ logger = logging.getLogger(__name__)
 
 
 @app.task
-def process_with_r(data_dict, output_filename=None):
+def process_with_r(file_id, output_filename=None):
     """
     Process data with R script in the background.
     
     Args:
         data_dict (dict): Dictionary containing data to process
         output_filename (str, optional): Name for the output file. If None, a timestamp-based name is used.
-        
+
     Returns:
         dict: The processed data from R
     """
     # Create a timestamp for unique filenames if none provided
     timestamp = int(time.time())
-    
+
     # Set filenames
     input_file = f"analysis/temp_input_{timestamp}.csv"
     if output_filename is None:
         output_file = f"analysis/temp_output_{timestamp}.csv"
     else:
         output_file = f"analysis/{output_filename}"
-    
+
+    # TODO: Dump the file in local computer before running the R Script
+    # download file from supabase
+    with open(f"./unprocessed_files/{file_id}.csv", "wb+") as f:
+        response = (
+            get_supabase_client().storage
+                .from_('raw-data')
+                .download('c4b6ca42-b2f9-40ef-8187-221a2abc09b0/temp/1745683584448_sample.csv')
+        )
+        f.write(response)
+
     try:
         # Convert dict to DataFrame if it's not already
-        if isinstance(data_dict, dict):
-            df = pd.DataFrame(data_dict)
-        elif isinstance(data_dict, pd.DataFrame):
-            df = data_dict
-        else:
-            logger.error(f"Unsupported data type: {type(data_dict)}")
-            return {"error": f"Unsupported data type: {type(data_dict)}", "success": False}
+        # TODO
+        # if isinstance(data_dict, dict):
+        #     df = pd.DataFrame(data_dict)
+        # elif isinstance(data_dict, pd.DataFrame):
+        #     df = data_dict
+        # else:
+        #     logger.error(f"Unsupported data type: {type(data_dict)}")
+        #     return {"error": f"Unsupported data type: {type(data_dict)}", "success": False}
             
-        # Save input data to CSV
-        logger.info(f"Saving input data to {input_file}")
-        df.to_csv(input_file, index=False)
+        # # Save input data to CSV
+        # logger.info(f"Saving input data to {input_file}")
+        # df.to_csv(input_file, index=False)
         
         # Get the directory of the current script
         script_dir = os.path.dirname(os.path.abspath(__file__))
         r_script_path = os.path.join(script_dir, "analysis", "preprocess.R")
-        
+
         logger.info(f"script_dir: {script_dir}")
         logger.info(f"r_script_path: {r_script_path}")
         
