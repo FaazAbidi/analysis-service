@@ -30,7 +30,7 @@ def process_with_r(file_id, output_filename=None):
     """
     # Create a timestamp for unique filenames if none provided
     timestamp = int(time.time())
-    
+
     # Set filenames
     input_file = f"analysis/temp_input_{timestamp}.csv"
     if output_filename is None:
@@ -38,8 +38,9 @@ def process_with_r(file_id, output_filename=None):
     else:
         output_file = f"analysis/{output_filename}"
 
+    # TODO: Dump the file in local computer before running the R Script
     # download file from supabase
-    with open("./unprocessed_files/1745683584448_sample.csv", "wb+") as f:
+    with open(f"./unprocessed_files/{file_id}.csv", "wb+") as f:
         response = (
             get_supabase_client().storage
                 .from_('raw-data')
@@ -65,7 +66,7 @@ def process_with_r(file_id, output_filename=None):
         # Get the directory of the current script
         script_dir = os.path.dirname(os.path.abspath(__file__))
         r_script_path = os.path.join(script_dir, "analysis", "preprocess.R")
-        
+
         logger.info(f"script_dir: {script_dir}")
         logger.info(f"r_script_path: {r_script_path}")
         
