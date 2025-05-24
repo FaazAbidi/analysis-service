@@ -32,23 +32,25 @@ def process_with_r(file_id, output_filename=None):
     timestamp = int(time.time())
 
     # Set filenames
-    input_file = f"analysis/temp_input_{timestamp}.csv"
+    input_file = f'{os.environ.get("BASE_RAW_DATA_FOLDER_PATH")}/{file_id}.csv'
     if output_filename is None:
         output_file = f"analysis/temp_output_{timestamp}.csv"
     else:
         output_file = f"analysis/{output_filename}"
 
-    # TODO: Dump the file in local computer before running the R Script
-    # download file from supabase
-    with open(f"./unprocessed_files/{file_id}.csv", "wb+") as f:
-        response = (
+    try:
+        # TODO: Dump the file in local computer before running the R Script
+        # download file from supabase
+        with open(f"./unprocessed_files/{file_id}.csv", "wb+") as f:
+            response = (
             get_supabase_client().storage
                 .from_('raw-data')
-                .download('c4b6ca42-b2f9-40ef-8187-221a2abc09b0/temp/1745683584448_sample.csv')
-        )
-        f.write(response)
-
-    try:
+                .download(
+                    f'{os.environ.get("BASE_RAW_DATA_FOLDER_PATH")}/{file_id}.csv'
+                )
+            )
+            f.write(response)
+        logger.info('File download from supabase complete!')
         # Convert dict to DataFrame if it's not already
         # TODO
         # if isinstance(data_dict, dict):
@@ -62,14 +64,14 @@ def process_with_r(file_id, output_filename=None):
         # # Save input data to CSV
         # logger.info(f"Saving input data to {input_file}")
         # df.to_csv(input_file, index=False)
-        
+
         # Get the directory of the current script
         script_dir = os.path.dirname(os.path.abspath(__file__))
         r_script_path = os.path.join(script_dir, "analysis", "preprocess.R")
 
         logger.info(f"script_dir: {script_dir}")
         logger.info(f"r_script_path: {r_script_path}")
-        
+
         # Make sure the R script is executable
         os.chmod(r_script_path, 0o755)
         
@@ -81,7 +83,7 @@ def process_with_r(file_id, output_filename=None):
             stderr=subprocess.PIPE,
             universal_newlines=True
         )
-        
+
         # Get output and error
         stdout, stderr = process.communicate()
         
@@ -90,12 +92,12 @@ def process_with_r(file_id, output_filename=None):
             logger.info(f"R script output:\n{stdout}")
         if stderr:
             logger.error(f"R script error:\n{stderr}")
-            
+
         # Check if the process was successful
         if process.returncode != 0:
             logger.error(f"R script failed with return code {process.returncode}")
             return {"error": stderr, "success": False}
-        
+
         # Read the processed data
         logger.info(f"Reading processed data from {output_file}")
         processed_data = pd.read_csv(output_file)

@@ -44,6 +44,7 @@ analysis/temp_*
 .vscode/
 *.swp
 *.swo
+unprocessed_files
 
 # OS specific
 .DS_Store
