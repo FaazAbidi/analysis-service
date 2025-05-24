@@ -6,7 +6,7 @@ if (!require("e1071")) install.packages("e1071")
 library(e1071)
 
 # Check skewness of quantitative columns and recommend transformations if needed
-check_skewness <- function(data, model, column_types = NULL) {
+check_skewness <- function(data, model, column_types = NULL, threshold_check_skewness = DEFAULT_THRESHOLD_CHECK_SKEWNESS) {
   library(jsonlite)
   skewed_columns <- c()
   
@@ -49,7 +49,7 @@ check_skewness <- function(data, model, column_types = NULL) {
     
     skew_value <- skewness(numeric_column, na.rm = TRUE)
     
-    if (abs(skew_value) > DEFAULT_THRESHOLD_CHECK_SKEWNESS) {
+    if (abs(skew_value) > threshold_check_skewness) {
       skewed_columns <- c(skewed_columns, col_name)
     }
   }
@@ -181,8 +181,8 @@ check_normalization <- function(data, model, column_types = NULL) {
 
 
 # Aggregate transformation-related checks in one function
-pre_analysis_transformation <- function(data, model, columns_types) {
-  skewed_info <- check_skewness(data, model, columns_types)
+pre_analysis_transformation <- function(data, model, columns_types, threshold_check_skewness) {
+  skewed_info <- check_skewness(data, model, columns_types, threshold_check_skewness)
   standardization_info <- check_standardization(data, model, columns_types)
   normalization_info <- check_normalization(data, model, columns_types)
   

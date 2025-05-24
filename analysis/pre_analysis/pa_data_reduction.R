@@ -5,8 +5,8 @@ if (!require("car")) install.packages("car")
 library(car)
 
 # Check if sampling is needed based on row count threshold
-is_sampling_required <- function(df, threshold = DEFAULT_THRESHOLD_FOR_SAMPLING) {
-  return(nrow(df) > threshold)
+is_sampling_required <- function(df, threshold_sampling = DEFAULT_THRESHOLD_FOR_SAMPLING) {
+  return(nrow(df) > threshold_sampling)
 }
 
 # Check multicollinearity using VIF, returns TRUE if any VIF > 5
@@ -28,19 +28,19 @@ check_multicollinearity <- function(data, target) {
 
 
 # Check if data is high dimensional: ratio of numeric features to rows > threshold
-check_high_dimensionality <- function(data, threshold = DEFAULT_THRESHOLD_CHECK_DIMENSIONALITY) {
+check_high_dimensionality <- function(data, threshold_check_dimensionality = DEFAULT_THRESHOLD_CHECK_DIMENSIONALITY) {
   data <- na.omit(data)
   numeric_data <- data[sapply(data, is.numeric)]
   ratio <- ncol(numeric_data) / nrow(numeric_data)
-  return(ratio > threshold)
+  return(ratio > threshold_check_dimensionality)
 }
 
 
 # Aggregate reduction checks to decide on sampling, multicollinearity, dimensionality, and PCA
-pre_analysis_reduction <- function(data, target) {
-  sampling_needed <- is_sampling_required(data)
+pre_analysis_reduction <- function(data, target, threshold_sampling, threshold_check_dimensionality) {
+  sampling_needed <- is_sampling_required(data, threshold_sampling)
   multicollinearity_exists <- check_multicollinearity(data, target)
-  high_dimensionality_exists <- check_high_dimensionality(data)
+  high_dimensionality_exists <- check_high_dimensionality(data, threshold_check_dimensionality)
   
   pca_required <- if (is.null(multicollinearity_exists)) {
     "Target is required"

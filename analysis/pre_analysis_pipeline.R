@@ -1,6 +1,7 @@
 setwd(Sys.getenv("R_CWD"))
 
 # Load all necessary scripts for data processing steps
+source("utils/utils.R")
 source("pre_processing/pp_data_collection.R")
 source("pre_analysis/pa_data_cleaning.R")
 source("pre_analysis/pa_data_transformation.R")
@@ -11,7 +12,16 @@ library(jsonlite)
 library(here)# Ensure jsonlite is loaded for toJSON()
 
 # Main function to perform the full pre-analysis workflow
-pre_analysis <- function(file_path, relevant_columns, target_variable = NULL, model = NULL, column_types) {
+pre_analysis <- function(
+    file_path,
+    relevant_columns,
+    target_variable,
+    model,
+    column_types,
+    threshold_check_categorical,
+    threshold_check_skewness,
+    threshold_sampling,
+    threshold_check_dimensionality) {
   
   # Load data from file using your get_dataframe function
   data <- get_dataframe(file_path)
@@ -25,13 +35,13 @@ pre_analysis <- function(file_path, relevant_columns, target_variable = NULL, mo
   pa_cleaning <- pre_analysis_cleaning(data, model, column_types)
   
   # 2. Data Transformation analysis
-  pa_transformation <- pre_analysis_transformation(data, model, column_types)
+  pa_transformation <- pre_analysis_transformation(data, model, column_types, threshold_check_skewness)
   
   # 3. Feature Engineering analysis
-  pa_feature_engineering <- pre_analysis_feature_engineering(data, model, column_types)
+  pa_feature_engineering <- pre_analysis_feature_engineering(data, model, column_types, threshold_check_categorical)
   
   # 4. Data Reduction analysis (requires target variable)
-  pa_reduction <- pre_analysis_reduction(data, target_variable)
+  pa_reduction <- pre_analysis_reduction(data, target_variable, threshold_sampling, threshold_check_dimensionality)
   
   # Combine all results into a single list
   result <- list(
@@ -48,31 +58,34 @@ pre_analysis <- function(file_path, relevant_columns, target_variable = NULL, mo
   # return(result)
 }
 
-get_column_types_json <- function() {
-  columns <- c("Name", "Age", "Salary", "Department", "Join_Date", "Gender", "Performance_Score", "Promoted")
-  types <- c("QUALITATIVE", "QUANTITATIVE", "QUANTITATIVE", "QUALITATIVE", "QUALITATIVE", "QUALITATIVE", "QUANTITATIVE", "QUALITATIVE")
+
+main <- function(params_path, input_data_path, output_params_path) {
+  params = fromJSON(params_path)
+  relevant_columns = names(params$columns)
+  column_types = get_column_types_from_json(params)
+  model = params$model
+  target = params$target1
   
-  column_info <- lapply(seq_along(columns), function(i) {
-    list(column = columns[i], type = types[i])
-  })
+  threshold_check_categorical = params$threshold_check_categorical
+  threshold_check_skewness = params$threshold_check_skewness
+  threshold_sampling = params$threshold_sampling
+  threshold_check_dimensionality = params$threshold_check_dimensionality
   
-  return(toJSON(column_info, pretty = TRUE, auto_unbox = TRUE))
+  result <- pre_analysis(input_data_path,
+                         relevant_columns,
+                         target,
+                         model,
+                         column_types,
+                         threshold_check_categorical,
+                         threshold_check_skewness,
+                         threshold_sampling,
+                         threshold_check_dimensionality)
+  
+  write_json_string(output_params_path, result)
 }
 
-# Example usage (replace file_path and columns with actual data)
-current_dir <- getwd()
-cwd = "C:/Users/ahsan/Documents/My Data/MS HIS/4 Summer Semester 2025/HIS Project/analysis-service/analysis"
 
-
-file_path <- file.path(current_dir, "input", "raw_data_new.csv")
-column_types = get_column_types_json()
-relevant_columns <- c('Name', 'Age', 'Salary', 'Department', 'Gender', 'Performance_Score', 'Promoted')
-target_variable <- "Promoted"
-model <- 'Decision Tree'
-
-
-
-# Run the pre-analysis and print the JSON result
-result <- pre_analysis(file_path, relevant_columns, target_variable, model, column_types)
-print(result)
-# write_json_string(file.path(current_dir, "output", "preanalysis.json"), result)
+cat("Current working directory:", getwd(), "\n")
+main(file.path(Sys.getenv("R_CWD"), "input", "input_for_pre_analysis.json"),
+     file.path(Sys.getenv("R_CWD"), "input", "raw_data_new.csv"),
+     file.path(Sys.getenv("R_CWD"), "output", "pre_analysis_output.json"))
