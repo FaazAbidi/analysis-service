@@ -1,5 +1,3 @@
-setwd("C:/Users/ahsan/Documents/My Data/MS HIS/4 Summer Semester 2025/HIS Project/cleanify_pre_processing")
-
 # Install and load 'rio' package for versatile data import/export
 if (!require("rio")) install.packages("rio")
 library(rio)

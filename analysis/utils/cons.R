@@ -1,5 +1,3 @@
-# setwd("C:/Users/ahsan/Documents/My Data/MS HIS/4 Summer Semester 2025/HIS Project/cleanify_pre_processing")
-
 # THIS FILE CONTAINS ALL CONSTANTS & DEFAULTS USED IN THE PROJECT
 
 DEFAULT_PERCENTAGE_CHECK_CATEGORICAL <- 0.3

@@ -1,5 +1,3 @@
-setwd("C:/Users/ahsan/Documents/My Data/MS HIS/4 Summer Semester 2025/HIS Project/cleanify_pre_processing")
-
 # Install and load necessary packages
 if (!require("jsonlite")) install.packages("jsonlite")
 library(jsonlite)
@@ -57,6 +55,33 @@ read_text_file <- function(file_path) {
   data <- read.table(file_path, header = TRUE, sep = separator, stringsAsFactors = FALSE)
   return(data)
 }
+
+
+
+write_csv_file <- function(file_path, data) {
+  dir_path <- dirname(file_path)
+  if (!dir.exists(dir_path)) {
+    dir.create(dir_path, recursive = TRUE)
+  }
+  write.csv(data, file = file_path, row.names = FALSE)
+}
+
+write_json_file <- function(file_path, data) {
+  dir_path <- dirname(file_path)
+  if (!dir.exists(dir_path)) {
+    dir.create(dir_path, recursive = TRUE)
+  }
+  write_json(data, path = file_path, pretty = TRUE, auto_unbox = TRUE)
+}
+
+write_json_string <- function(file_path, json_string) {
+  dir_path <- dirname(file_path)
+  if (!dir.exists(dir_path)) {
+    dir.create(dir_path, recursive = TRUE)
+  }
+  writeLines(json_string, file_path)
+}
+
 
 # General function to load dataframe based on file extension
 get_dataframe <- function(file_path) {
