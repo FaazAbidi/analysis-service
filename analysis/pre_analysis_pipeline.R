@@ -15,13 +15,14 @@ library(here)# Ensure jsonlite is loaded for toJSON()
 pre_analysis <- function(
     file_path,
     relevant_columns,
-    target_variable,
+    target,
     model,
     column_types,
     threshold_check_categorical,
     threshold_check_skewness,
     threshold_sampling,
-    threshold_check_dimensionality) {
+    threshold_check_dimensionality,
+    threshold_check_vif) {
   
   # Load data from file using your get_dataframe function
   data <- get_dataframe(file_path)
@@ -41,7 +42,7 @@ pre_analysis <- function(
   pa_feature_engineering <- pre_analysis_feature_engineering(data, model, column_types, threshold_check_categorical)
   
   # 4. Data Reduction analysis (requires target variable)
-  pa_reduction <- pre_analysis_reduction(data, target_variable, threshold_sampling, threshold_check_dimensionality)
+  pa_reduction <- pre_analysis_reduction(data, target, column_types, threshold_sampling, threshold_check_dimensionality, threshold_check_vif)
   
   # Combine all results into a single list
   result <- list(
@@ -62,24 +63,26 @@ pre_analysis <- function(
 main <- function(params_path, input_data_path, output_params_path) {
   params = fromJSON(params_path)
   relevant_columns = names(params$columns)
-  column_types = get_column_types_from_json(params)
+  column_details = get_column_details_from_json(params)
   model = params$model
-  target = params$target1
+  target = params$target
   
   threshold_check_categorical = params$threshold_check_categorical
   threshold_check_skewness = params$threshold_check_skewness
   threshold_sampling = params$threshold_sampling
   threshold_check_dimensionality = params$threshold_check_dimensionality
+  threshold_check_vif = params$threshold_check_vif
   
   result <- pre_analysis(input_data_path,
                          relevant_columns,
                          target,
                          model,
-                         column_types,
+                         column_details,
                          threshold_check_categorical,
                          threshold_check_skewness,
                          threshold_sampling,
-                         threshold_check_dimensionality)
+                         threshold_check_dimensionality,
+                         threshold_check_vif)
   
   write_json_string(output_params_path, result)
 }
