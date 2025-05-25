@@ -10,3 +10,23 @@ get_column_details_from_json <- function(data) {
   
   return(column_info)
 }
+
+
+average_decimal_places <- function(column) {
+  count_decimals <- function(x) {
+    s <- format(x, scientific = FALSE, trim = TRUE)
+    s <- sub("0+$", "", s)
+    decimal_part <- sub("^[+-]?[0-9]+\\.", "", s)
+    if (grepl("\\.", s)) {
+      nchar(decimal_part)
+    } else {
+      0
+    }
+  }
+  
+  n <- length(column)
+  sample_size <- max(1, ceiling(n * 0.05))
+  column_sample <- sample(column, sample_size)
+  
+  mean(vapply(column_sample, count_decimals, numeric(1)))
+}

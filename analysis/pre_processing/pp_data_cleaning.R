@@ -1,4 +1,5 @@
 source("utils/cons.R")
+source("utils/utils.R")
 
 # Load necessary libraries
 if (!require("dplyr")) install.packages("dplyr")
@@ -27,7 +28,7 @@ impute_mean <- function(
   }
   
   mean_val <- mean(col_num[!missing_idx], na.rm = TRUE)
-  col[missing_idx] <- round(mean_val, 1)
+  col[missing_idx] <- round(mean_val, average_decimal_places(col_num))
   return(col)
 }
 
@@ -52,7 +53,7 @@ impute_median <- function(
   }
   
   median_val <- median(col_num[!missing_idx], na.rm = TRUE)
-  col[missing_idx] <- round(median_val, 1)
+  col[missing_idx] <- round(median_val, average_decimal_places(col_num))
   return(col)
 }
 
@@ -86,7 +87,7 @@ impute_mode <- function(
   if (column_type == "QUANTITATIVE") {
     col_num <- suppressWarnings(as.numeric(col_char))
     result <- col_char
-    result[!is.na(col_num)] <- as.character(round(col_num[!is.na(col_num)], 1))
+    result[!is.na(col_num)] <- as.character(col_num[!is.na(col_num)])
     return(result)
   } else {
     return(col_char)
@@ -119,7 +120,7 @@ impute_random <- function(
   if (column_type == "QUANTITATIVE") {
     col_num <- suppressWarnings(as.numeric(col_char))
     result <- col_char
-    result[!is.na(col_num)] <- as.character(round(col_num[!is.na(col_num)], 1))
+    result[!is.na(col_num)] <- as.character(col_num[!is.na(col_num)])
     return(result)
   } else {
     return(col_char)

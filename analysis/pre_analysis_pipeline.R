@@ -86,9 +86,12 @@ main <- function(
 }
 
 cat("Current working directory:", getwd(), "\n")
-
+start_time <- Sys.time()
 main(
-  file.path(Sys.getenv("R_CWD"), "input", "input_for_pre_analysis.json"),
-  file.path(Sys.getenv("R_CWD"), "input", "raw_data_new.csv"),
-  file.path(Sys.getenv("R_CWD"), "output", "pre_analysis_output.json")
+  file.path(Sys.getenv("R_CWD"), "input", "input_for_pre_analysis_synthetic.json"),
+  file.path(Sys.getenv("R_CWD"), "input", "synthetic_dataset.csv"),
+  file.path(Sys.getenv("R_CWD"), "output", "pre_analysis_output_synthetic.json")
 )
+end_time <- Sys.time()
+elapsed_time <- end_time - start_time
+print(elapsed_time)
