@@ -10,20 +10,55 @@ is_sampling_required <- function(df, threshold_sampling = DEFAULT_THRESHOLD_FOR_
 }
 
 # Check multicollinearity using VIF, returns TRUE if any VIF > 5
-check_multicollinearity <- function(data, target) {
+check_multicollinearity <- function(data, target, column_types = NULL, threshold_check_vif = DEFAULT_THRESHOLD_CHECK_VIF) {
   if (is.null(target)) return(NULL)
   
   data <- na.omit(data)
   
   if (!(target %in% names(data))) stop("Target variable not found in data.")
   
-  numeric_data <- data[sapply(data, is.numeric)]
+  # Parse column_types JSON string if necessary
+  if (!is.null(column_types) && is.character(column_types)) {
+    parsed <- fromJSON(column_types)
+    if (is.data.frame(parsed)) {
+      column_types <- lapply(seq_len(nrow(parsed)), function(i) {
+        list(column = parsed$column[[i]], type = parsed$type[[i]])
+      })
+    }
+  }
+  
+  # Determine quantitative columns using column_types
+  quantitative_cols <- c()
+  
+  for (col_name in names(data)) {
+    col_type <- NULL
+    
+    if (!is.null(column_types)) {
+      matched <- Filter(function(entry) {
+        is.list(entry) && !is.null(entry[["column"]]) && entry[["column"]] == col_name
+      }, column_types)
+      if (length(matched) > 0) {
+        col_type <- matched[[1]][["type"]]
+      }
+    }
+    
+    # If not found in column_types, fallback to is.numeric
+    if (is.null(col_type)) {
+      if (is.numeric(data[[col_name]])) {
+        quantitative_cols <- c(quantitative_cols, col_name)
+      }
+    } else if (col_type == "QUANTITATIVE") {
+      quantitative_cols <- c(quantitative_cols, col_name)
+    }
+  }
+  
+  numeric_data <- data[, quantitative_cols, drop = FALSE]
   
   formula <- as.formula(paste(target, "~ ."))
   model <- lm(formula, data = numeric_data)
   vif_vals <- vif(model)
   
-  return(any(vif_vals > 5))
+  return(any(vif_vals > threshold_check_vif))
 }
 
 
@@ -37,9 +72,9 @@ check_high_dimensionality <- function(data, threshold_check_dimensionality = DEF
 
 
 # Aggregate reduction checks to decide on sampling, multicollinearity, dimensionality, and PCA
-pre_analysis_reduction <- function(data, target, threshold_sampling, threshold_check_dimensionality) {
+pre_analysis_reduction <- function(data, target, column_types, threshold_sampling, threshold_check_dimensionality, threshold_check_vif) {
   sampling_needed <- is_sampling_required(data, threshold_sampling)
-  multicollinearity_exists <- check_multicollinearity(data, target)
+  multicollinearity_exists <- check_multicollinearity(data, target, column_types, threshold_check_vif)
   high_dimensionality_exists <- check_high_dimensionality(data, threshold_check_dimensionality)
   
   pca_required <- if (is.null(multicollinearity_exists)) {
