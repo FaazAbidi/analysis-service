@@ -55,5 +55,5 @@ unprocessed_files
 ehthumbs.db
 Thumbs.db 
 
-./json
-./unprocessed_files
+json/
+unprocessed_files/
