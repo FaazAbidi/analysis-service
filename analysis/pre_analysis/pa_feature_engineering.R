@@ -1,7 +1,12 @@
 source("utils/cons.R")
 
 # Check categorical columns based on heuristic: character or factor with low cardinality
-check_categorical_columns <- function(data, model, column_types = NULL, threshold_check_categorical = DEFAULT_PERCENTAGE_CHECK_CATEGORICAL) {
+check_categorical_columns <- function(
+    data,
+    model,
+    column_types = NULL,
+    threshold_check_categorical = DEFAULT_PERCENTAGE_CHECK_CATEGORICAL
+) {
   library(jsonlite)
   
   # Parse column_types if it's a JSON string
@@ -14,7 +19,6 @@ check_categorical_columns <- function(data, model, column_types = NULL, threshol
     }
   }
   
-  # Determine columns that are QUALITATIVE (from column_types or fallback)
   qualitative_cols <- c()
   
   for (col_name in colnames(data)) {
@@ -38,7 +42,6 @@ check_categorical_columns <- function(data, model, column_types = NULL, threshol
     qualitative_cols <- c(qualitative_cols, col_name)
   }
   
-  # Apply the categorical filter logic on those QUALITATIVE columns
   cat_cols <- Filter(function(col_name) {
     col <- data[[col_name]]
     (is.character(col) || is.factor(col)) &&
@@ -60,10 +63,19 @@ check_categorical_columns <- function(data, model, column_types = NULL, threshol
   return(list(columns = cat_cols, recommendation = recommendation))
 }
 
-
 # Aggregate feature engineering checks
-pre_analysis_feature_engineering <- function(data, model, column_types, threshold_check_categorical) {
-  categorical_columns <- check_categorical_columns(data, model, column_types, threshold_check_categorical)
+pre_analysis_feature_engineering <- function(
+    data,
+    model,
+    column_types,
+    threshold_check_categorical
+) {
+  categorical_columns <- check_categorical_columns(
+    data,
+    model,
+    column_types,
+    threshold_check_categorical
+  )
   
   result <- list(
     columns_require_one_hot_encoding = categorical_columns

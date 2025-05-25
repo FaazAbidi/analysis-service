@@ -8,8 +8,14 @@ library(jsonlite)
 
 
 # Function to determine column type: QUANTITATIVE if >50% numeric, else QUALITATIVE
-check_column_type <- function(df, col_name) {
-  numeric_count <- sum(!is.na(suppressWarnings(as.numeric(df[[col_name]]))) & !is.nan(suppressWarnings(as.numeric(df[[col_name]]))))
+check_column_type <- function(
+    df,
+    col_name
+) {
+  numeric_count <- sum(
+    !is.na(suppressWarnings(as.numeric(df[[col_name]]))) & 
+      !is.nan(suppressWarnings(as.numeric(df[[col_name]])))
+  )
   total_count <- length(df[[col_name]])
   
   if (numeric_count / total_count > 0.5) {
@@ -20,7 +26,9 @@ check_column_type <- function(df, col_name) {
 }
 
 # Check for duplicates in the whole dataframe
-check_duplicates <- function(df) {
+check_duplicates <- function(
+    df
+) {
   dup_flags <- duplicated(df)
   exists <- any(dup_flags)
   count <- sum(dup_flags)
@@ -34,7 +42,10 @@ check_duplicates <- function(df) {
 }
 
 # Check if missing values exist anywhere in data, provide recommendation based on model
-has_missing <- function(data, model) {
+has_missing <- function(
+    data,
+    model
+) {
   missing_counts <- sapply(data, function(x) {
     sum(is.na(x) | is.nan(x) | x == "" | grepl("^\\s*$", x))
   })
@@ -57,7 +68,10 @@ has_missing <- function(data, model) {
 }
 
 # Check which columns have missing values and counts, with recommendations
-check_missing <- function(data, model) {
+check_missing <- function(
+    data,
+    model
+) {
   missing_info <- sapply(data, function(x) {
     sum(is.na(x) | is.nan(x) | x == "" | grepl("^\\s*$", x))
   })
@@ -81,7 +95,6 @@ check_missing <- function(data, model) {
     }
   }
   
-  # New return format:
   return(list(
     missing_info = missing_list,
     recommendation = recommendation
@@ -93,7 +106,11 @@ check_missing <- function(data, model) {
 
 
 # Detect outliers based on IQR method, provide counts and recommendation
-check_outliers <- function(data, model, column_types = NULL) {
+check_outliers <- function(
+    data,
+    model,
+    column_types = NULL
+) {
   library(jsonlite)
   
   # If column_types is a JSON string, parse it into a list of lists
@@ -180,7 +197,11 @@ check_outliers <- function(data, model, column_types = NULL) {
 
 
 # Check inconsistencies in data (numeric-like strings in qualitative columns or non-numeric in quantitative columns)
-check_inconsistencies <- function(data, model, column_types = NULL) {
+check_inconsistencies <- function(
+    data,
+    model,
+    column_types = NULL
+) {
   library(jsonlite)
   
   # Parse JSON if necessary
@@ -268,7 +289,11 @@ check_inconsistencies <- function(data, model, column_types = NULL) {
 
 
 # Main pre-analysis cleaning function aggregating checks
-pre_analysis_cleaning <- function(data, model, column_types) {
+pre_analysis_cleaning <- function(
+    data,
+    model,
+    column_types
+) {
   duplicates <- check_duplicates(data)
   missing <- has_missing(data, model)
   missing_columns <- check_missing(data, model)
