@@ -131,3 +131,27 @@ get_dataframe <- function(
   
   return(data)
 }
+
+write_dataframe <- function(
+    data,
+    file_path
+) {
+  dir_path <- dirname(file_path)
+  if (!dir.exists(dir_path)) {
+    dir.create(dir_path, recursive = TRUE)
+  }
+  
+  if (grepl("\\.csv$", file_path, ignore.case = TRUE)) {
+    write.csv(data, file = file_path, row.names = FALSE)
+  } else if (grepl("\\.xlsx$", file_path, ignore.case = TRUE)) {
+    write_xlsx(data, path = file_path)
+  } else if (grepl("\\.json$", file_path, ignore.case = TRUE)) {
+    write_json(data, path = file_path, pretty = TRUE, auto_unbox = TRUE)
+  } else if (grepl("\\.txt$", file_path, ignore.case = TRUE)) {
+    write.table(data, file = file_path, sep = "\t", row.names = FALSE, quote = FALSE)
+  } else {
+    stop("Unsupported file format for writing")
+  }
+}
+
+
