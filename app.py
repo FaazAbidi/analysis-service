@@ -1,8 +1,10 @@
+from datetime import datetime
 import json
 from flask import Flask, jsonify, request, render_template
 from tasks import process_with_r
 from celery.result import AsyncResult
 import os
+import traceback
 
 app = Flask(__name__)
 
@@ -31,33 +33,48 @@ def preprocess():
     }
     """
     try:
-        # Get data from request
+        # Get data from reques
+        
         request_json = request.get_json()
-        if not request_json or "taskMethodId" not in request_json:
-            return jsonify({"error": "No data or file_id provided"}), 400
+        
+        if not request_json:
+            return jsonify({"error": "No data provided"}), 400
+        
+        print(f"request_json: {request_json}")
+        
+        method: str = request_json.get("method", None)
+        task_method_id: int = request_json.get("taskMethodId", None)
+        user_id: str = request_json.get("userId", None)
+        
+        if not method:
+            return jsonify({"error": "method is required"}), 400
+        
+        if not task_method_id:
+            return jsonify({"error": "taskMethodId is required"}), 400
+        
+        if not user_id:
+            return jsonify({"error": "userId is required"}), 400
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        json_file_path = (
-            f"./json/{request_json.get('taskMethodId')}_{request_json.get('method')}"
+        directory_path = (
+            f"./json/{task_method_id}_{method}_{timestamp}"
         )
+        os.makedirs(directory_path, exist_ok=True)
+        json_file_path = os.path.join(directory_path, "request_data.json")
         with open(json_file_path, "w") as f:
             json.dump(request_json, f, indent=2)
 
-        task_method_id: int = request_json.get("taskMethodId")
-
-        # # Handle array input by converting to dictionary with 'value' column
-        # if isinstance(data, list):
-        #     data_dict = {"value": data}
-        # else:
-        #     data_dict = data
-
         # Process data with R script (asynchronously)
-        task = process_with_r.delay(task_method_id, json_file_path)
+        task = process_with_r.delay(task_method_id, user_id, json_file_path)
 
         return jsonify(
             {"task_id": task.id, "message": "Preprocessing task submitted successfully"}
         )
 
     except Exception as e:
+        print(traceback.format_exc())
+        print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
 
 

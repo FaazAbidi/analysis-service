@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 @app.task
-def process_with_r(task_method_id: int, output_file: str):
+def process_with_r(task_method_id: int, user_id: str, output_file: str):
     """
     Process data with R script in the background.
 
@@ -46,34 +46,56 @@ def process_with_r(task_method_id: int, output_file: str):
         )
         if task_method is None:
             raise Exception("TaskMethod not found for id" + task_method_id)
-
+        
         prev_version: int = task_method.get("prev_version")
-
-        file = (
-            supabase_client.table("Files")
-            .select("id, path, file_name")
+        
+        # get parent file id
+        parent_file_id = (
+            supabase_client.table("TaskMethods")
+            .select("*")
             .eq("id", prev_version)
             .single()
             .execute()
             .data
         )
+        
+        if not parent_file_id:
+            raise Exception(f"Parent file not found for id {prev_version}")
+        
+        parent_file_id = parent_file_id.get("processed_file")
+        
+        if not parent_file_id:
+            raise Exception(f"Parent file not found for id {parent_file_id}")
 
-        if file is None:
-            raise Exception("File not found")
+        file_result = (
+            supabase_client.table("Files")
+            .select("id, path, file_name")
+            .eq("id", parent_file_id)
+            .execute()
+        )
+
+        if not file_result.data:
+            raise Exception(f"File not found for id {parent_file_id}")
+
+        file = file_result.data[0]
 
         logger.info(f"TaskMethod: {json.dumps(file, indent=2)}")
 
         storage_file_path = file.get("path")
         file_name = file.get("file_name")
-        input_file_path: str = f"./unprocessed_files/{file_name}__{timestamp}"
+        # Create a directory for this specific task run using a timestamp
+        task_directory = f"./unprocessed_files/{timestamp}"
+        os.makedirs(task_directory, exist_ok=True)
+
+        # Construct the full path to the input file within the task-specific directory
+        input_file_path: str = os.path.join(task_directory, file_name)
 
         logger.info(f"File path: {input_file_path}")
 
-        file = supabase_client.storage.from_("raw-data").download(storage_file_path)
-        # TODO: Dump the file in local computer before running the R Script
+        file_content = supabase_client.storage.from_("raw-data").download(storage_file_path)
         # download file from supabase
         with open(input_file_path, "wb+") as f:
-            f.write(file)
+            f.write(file_content)
             logger.info("File download from supabase complete!")
 
         # Get the directory of the current script
@@ -113,11 +135,14 @@ def process_with_r(task_method_id: int, output_file: str):
         # # Read the processed data
         logger.info(f"Reading processed data from {output_file}")
         processed_data = pd.read_csv(output_file)
+        
+        # calculate file size
+        file_size = os.path.getsize(output_file)
 
         with open(output_file, "rb") as f:
             processed_file = supabase_client.storage.from_("processed-data").upload(
                 file=f,
-                path=f"output/{file_name}_{timestamp}",
+                path=f"{user_id}/{timestamp}/{file_name}",
                 file_options={"cache-control": "3600", "upsert": "false"},
             )
         logger.info(f"processed file path: {processed_file.path}")
@@ -126,7 +151,8 @@ def process_with_r(task_method_id: int, output_file: str):
             .insert(
                 {
                     "path": processed_file.path,
-                    "file_name": f"{file_name}_{timestamp}",
+                    "file_name": f"{file_name}",
+                    "file_size": file_size
                 }
             ).execute().data[0].get("id")
         )
@@ -149,7 +175,7 @@ def process_with_r(task_method_id: int, output_file: str):
         for column in processed_data.columns:
             result_dict[column] = processed_data[column].tolist()
 
-        return {"data": result_dict, "success": True}
+        return {"success": True}
 
     except Exception as e:
         logger.error(f"Error in process_with_r: {str(e)}")
