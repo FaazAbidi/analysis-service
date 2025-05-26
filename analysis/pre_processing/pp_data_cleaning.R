@@ -158,19 +158,27 @@ impute_constant <- function(
 }
 
 
+remove_missing <- function(data, col) {
+  # Removes rows where the specified column has missing values or NaN
+  data <- data[!is.na(data[[col]]) & !is.nan(data[[col]]) & data[[col]] != "", ]
+  return(data)
+}
+
+
+
 fix_missing <- function(
     data,
     column_details
 ) {
-  # Apply imputation steps to columns based on details
+  # Apply remove_missing for columns where the step is 'remove_missing'
   for (detail in column_details) {
     col_name <- detail$column
     col_type <- detail$type
     step_name <- detail$step
     
-    if (!is.null(step_name) &&
-        nzchar(step_name) &&
-        exists(step_name, mode = "function")) {
+    if (step_name == "remove_missing") {
+      data <- remove_missing(data, col_name)
+    } else if (!is.null(step_name) && nzchar(step_name) && exists(step_name, mode = "function")) {
       func <- get(step_name)
       data[[col_name]] <- func(data[[col_name]], col_type)
     } else {
