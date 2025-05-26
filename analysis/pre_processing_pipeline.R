@@ -1,14 +1,11 @@
-setwd(Sys.getenv("R_CWD"))
+library(jsonlite)
+# if (!require("here")) install.packages("here")
+library(here)
 
 # Load necessary scripts for data processing
-source("utils/utils.R")
-source("pre_processing/pp_data_collection.R")
-source("pre_processing/pp_data_cleaning.R")
-
-if (!require("jsonlite")) install.packages("jsonlite")
-library(jsonlite)
-if (!require("here")) install.packages("here")
-library(here)
+source("analysis/utils/utils.R")
+source("analysis/pre_processing/pp_data_collection.R")
+source("analysis/pre_processing/pp_data_cleaning.R")
 
 # Main function to perform the full pre-analysis workflow
 pre_processing <- function(
@@ -42,13 +39,38 @@ main <- function(
 }
 
 
+# Main execution logic to read command-line arguments and run the workflow
+cli_main <- function() {
+  args <- commandArgs(trailingOnly = TRUE)
+
+  # Check if we have the right number of arguments
+  if (length(args) < 3) {
+    cat("Usage: Rscript pre_processing_pipeline.R params_file.json input_data_file.csv output_data_file.csv\n")
+    return(1) # Return a non-zero status code for error
+  }
+
+  params_path <- args[1]
+  input_data_path <- args[2]
+  output_data_path <- args[3]
+
+  # Call the main workflow function
+  # The main function currently prints elapsed time, we can keep this or modify as needed
+  main(params_path, input_data_path, output_data_path)
+
+  # Return a zero status code for success
+  return(0)
+}
+
+# Run the command-line main function
 cat("Current working directory:", getwd(), "\n")
 start_time <- Sys.time()
-main(
-  file.path(Sys.getenv("R_CWD"), "input", "input_for_pre_processing_synthetic.json"),
-  file.path(Sys.getenv("R_CWD"), "input", "synthetic_dataset.csv"),
-  file.path(Sys.getenv("R_CWD"), "output", "imputed_missing_synthetic.csv")
-)
+
+# Run the CLI main function and capture the status for quitting
+status <- cli_main()
+
 end_time <- Sys.time()
 elapsed_time <- end_time - start_time
-print(elapsed_time)
+cat("Total elapsed time:", format(elapsed_time), "\n")
+
+# Exit with the status code returned by cli_main
+quit(status = status)

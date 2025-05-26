@@ -1,10 +1,12 @@
-source("utils/cons.R")
-source("utils/utils.R")
+library(here)
+
+source("analysis/utils/cons.R")
+source("analysis/utils/utils.R")
 
 # Load necessary libraries
-if (!require("dplyr")) install.packages("dplyr")
+# if (!require("dplyr")) install.packages("dplyr")
 library(dplyr)
-if (!require("jsonlite")) install.packages("jsonlite")
+# if (!require("jsonlite")) install.packages("jsonlite")
 library(jsonlite)
 
 

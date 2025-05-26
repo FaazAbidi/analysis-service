@@ -1,11 +1,11 @@
 # Install and load necessary packages
-if (!require("jsonlite")) install.packages("jsonlite")
+# if (!require("jsonlite")) install.packages("jsonlite")
 library(jsonlite)
 
-if (!require("readr")) install.packages("readr")
+# if (!require("readr")) install.packages("readr")
 library(readr)
 
-if (!require("readxl")) install.packages("readxl")
+# if (!require("readxl")) install.packages("readxl")
 library(readxl)
 
 # Detect the separator in CSV or text files by trying common delimiters

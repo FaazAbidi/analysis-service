@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 @app.task
-def process_with_r(task_method_id: int, user_id: str, output_file: str):
+def process_with_r(task_method_id: int, user_id: str, json_file_path: str):
     """
     Process data with R script in the background.
 
@@ -100,17 +100,23 @@ def process_with_r(task_method_id: int, user_id: str, output_file: str):
 
         # Get the directory of the current script
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        r_script_path = os.path.join(script_dir, "analysis", "preprocess.R")
+        r_script_path = os.path.join(script_dir, "analysis", "pre_processing_pipeline.R")
 
         logger.info(f"script_dir: {script_dir}")
         logger.info(f"r_script_path: {r_script_path}")
 
         # # Make sure the R script is executable
         os.chmod(r_script_path, 0o755)
+        
+        output_directory_path = (
+            f"./processed_files/{task_method_id}"
+        )
+        os.makedirs(output_directory_path, exist_ok=True)
+        output_file_path = os.path.join(output_directory_path, file_name)
 
         # # Run the R script as a subprocess
         process = subprocess.Popen(
-            ["Rscript", r_script_path, input_file_path, output_file],
+            ["Rscript", r_script_path, json_file_path, input_file_path, output_file_path],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             universal_newlines=True,
@@ -133,13 +139,14 @@ def process_with_r(task_method_id: int, user_id: str, output_file: str):
             return {"error": stderr, "success": False}
 
         # # Read the processed data
-        logger.info(f"Reading processed data from {output_file}")
-        processed_data = pd.read_csv(output_file)
+        logger.info(f"Reading processed data from {output_file_path}")
+        processed_data = pd.read_csv(output_file_path)
         
         # calculate file size
-        file_size = os.path.getsize(output_file)
+        file_size = os.path.getsize(output_file_path)
 
-        with open(output_file, "rb") as f:
+        with open(output_file_path, "rb") as f:
+            # TODO: get files from raw-data if the version is not original
             processed_file = supabase_client.storage.from_("processed-data").upload(
                 file=f,
                 path=f"{user_id}/{timestamp}/{file_name}",
@@ -166,8 +173,8 @@ def process_with_r(task_method_id: int, user_id: str, output_file: str):
         logger.info(f"Removing temporary input file {input_file_path}")
         os.remove(input_file_path)
 
-        logger.info(f"Removing temporary output file {output_file}")
-        os.remove(output_file)
+        logger.info(f"Removing temporary output file {output_file_path}")
+        os.remove(output_file_path)
 
         # # Return the processed data as a dictionary
         # # Convert to serializable format
