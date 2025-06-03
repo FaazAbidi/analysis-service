@@ -111,7 +111,7 @@ write_json_string <- function(
 get_dataframe <- function(
     file_path
 ) {
-  na_columns <- c("NA", "NaN", "Na")
+  na_columns <- c("NA", "NaN", "Na", "")
   
   if (grepl("\\.csv$", file_path, ignore.case = TRUE)) {
     data <- read.csv(

@@ -74,3 +74,18 @@ cat("Total elapsed time:", format(elapsed_time), "\n")
 
 # Exit with the status code returned by cli_main
 quit(status = status)
+
+
+################################## will be removed #############################
+# cwd = "C:/Users/ahsan/Documents/My Data (without drive)/analysis-service"
+# cat("Current working directory:", getwd(), "\n")
+# start_time <- Sys.time()
+# main(
+#   file.path(cwd,"analysis", "input", "params_inconsistencies.json"),
+#   file.path(cwd,"analysis", "input", "raw_data_new.csv"),
+#   file.path(cwd,"analysis", "output", "processed_data_new.csv")
+# )
+# end_time <- Sys.time()
+# elapsed_time <- end_time - start_time
+# print(elapsed_time)
+################################################################################
