@@ -1,23 +1,15 @@
-library(here)
-
 source("analysis/utils/cons.R")
 source("analysis/utils/utils.R")
 
-# Load necessary libraries
-# if (!require("dplyr")) install.packages("dplyr")
 library(dplyr)
-# if (!require("jsonlite")) install.packages("jsonlite")
 library(jsonlite)
-# if (!require("mlr")) install.packages("mlr")
 library(mlr)
+library(here)
 
-get_missing_indexes <- function(
-    col
-    ) {
+get_missing_indexes <- function(col) {
   missing_idx <- is.na(col) | is.nan(col) | (col == "")
   return(missing_idx)
 }
-
 
 get_outliers_indexes <- function(col) {
   col_char <- as.character(col)
@@ -42,9 +34,8 @@ get_outliers_indexes <- function(col) {
   return(outlier_idx)
 }
 
-
 get_inconsistent_indexes <- function(col, column_type) {
-  col_char <- trimws(as.character(col))  # remove leading/trailing spaces
+  col_char <- trimws(as.character(col))  # Remove leading/trailing spaces
   
   if (column_type == "QUALITATIVE") {
     numeric_like <- grepl("^[0-9]+(\\.[0-9]+)?$", col_char)
@@ -59,12 +50,7 @@ get_inconsistent_indexes <- function(col, column_type) {
   return(inconsistent_idx)
 }
 
-
-impute_mean <- function(
-    col,
-    column_type,
-    missing_idx
-) {
+impute_mean <- function(col, column_type, missing_idx) {
   # Imputes missing numeric values with mean rounded to 1 decimal
   if (column_type != "QUANTITATIVE") {
     warning("impute_mean expects QUANTITATIVE column. Returning column unchanged.")
@@ -83,12 +69,7 @@ impute_mean <- function(
   return(col)
 }
 
-
-impute_median <- function(
-    col,
-    column_type,
-    missing_idx
-) {
+impute_median <- function(col, column_type, missing_idx) {
   # Imputes missing numeric values with median rounded to 1 decimal
   if (column_type != "QUANTITATIVE") {
     warning("impute_median expects QUANTITATIVE column. Returning column unchanged.")
@@ -107,12 +88,7 @@ impute_median <- function(
   return(col)
 }
 
-
-impute_mode <- function(
-    col,
-    column_type,
-    missing_idx
-) {
+impute_mode <- function(col, column_type, missing_idx) {
   # Imputes missing values with the most frequent value (mode)
   if (!(column_type %in% c("QUALITATIVE", "QUANTITATIVE"))) {
     warning("impute_mode expects QUALITATIVE or QUANTITATIVE column. Returning column unchanged.")
@@ -142,13 +118,8 @@ impute_mode <- function(
   }
 }
 
-
-impute_random <- function(
-    col,
-    column_type,
-    missing_idx
-) {
-  # Imputes missing values by random sampling from existing values
+impute_random <- function(col, column_type, missing_idx) {
+  # Imputes missing values by random sampling from the distribution of existing values
   if (!(column_type %in% c("QUALITATIVE", "QUANTITATIVE"))) {
     warning("impute_random expects QUALITATIVE or QUANTITATIVE column. Returning column unchanged.")
     return(col)
@@ -156,12 +127,23 @@ impute_random <- function(
   
   col_char <- as.character(col)
   
+  # Check if there are non-missing values to sample from
   if (length(col_char[!missing_idx]) == 0) {
     warning("Returning column unchanged.")
     return(col)
   }
   
-  col_char[missing_idx] <- sample(col_char[!missing_idx], sum(missing_idx), replace = TRUE)
+  # Calculate the frequency of each unique value
+  value_freq <- table(col_char[!missing_idx])
+  
+  # Create a probability distribution based on the frequency of each value
+  prob_dist <- value_freq / sum(value_freq)
+  
+  # Sample from the values based on the computed probability distribution
+  sampled_values <- sample(names(value_freq), size = sum(missing_idx), replace = TRUE, prob = prob_dist)
+  
+  # Assign the sampled values to the missing positions
+  col_char[missing_idx] <- sampled_values
   
   if (column_type == "QUANTITATIVE") {
     col_num <- suppressWarnings(as.numeric(col_char))
@@ -174,12 +156,7 @@ impute_random <- function(
 }
 
 
-impute_constant <- function(
-    col,
-    column_type,
-    missing_idx,
-    value
-) {
+impute_constant <- function(col, column_type, missing_idx, value) {
   # Imputes missing values with a constant specified by `value`
   if (!(column_type %in% c("QUALITATIVE", "QUANTITATIVE"))) {
     warning("impute_constant expects QUALITATIVE or QUANTITATIVE column. Returning column unchanged.")
@@ -195,7 +172,6 @@ impute_constant <- function(
   
   col_char[missing_idx] <- as.character(value)
   
-  
   if (column_type == "QUANTITATIVE") {
     col_num <- suppressWarnings(as.numeric(col_char))
     result <- col_char
@@ -206,23 +182,19 @@ impute_constant <- function(
   }
 }
 
-remove <- function(df, col) {
+remove <- function(df, col, idx) {
   if (!(col %in% names(df))) {
     stop("Column not found in dataframe")
   }
   
-  column_data <- df[[col]]
-  keep_rows <- !(is.na(column_data) | is.nan(column_data) | column_data == "")
+  if (length(idx) != nrow(df)) {
+    stop("The length of Idx must match the number of rows in the dataframe")
+  }
   
-  return(df[keep_rows, ])
+  return(df[!idx, ])
 }
 
-
-fix_missing <- function(
-    data,
-    column_details,
-    method
-) {
+fix_missing <- function(data, column_details, method) {
   # Apply imputation steps to columns based on details
   for (detail in column_details) {
     col_name <- detail$column
@@ -241,7 +213,7 @@ fix_missing <- function(
         data[[col_name]] <- func(data[[col_name]], col_type, missing_idx, value)
       }
       else if (step_name == "remove") {
-        data <- func(data, col_name)
+        data <- func(data, col_name, missing_idx)
       }
       else {
         data[[col_name]] <- func(data[[col_name]], col_type, missing_idx) 
@@ -253,12 +225,7 @@ fix_missing <- function(
   return(data)
 }
 
-
-fix_outliers <- function(
-    data,
-    column_details,
-    method
-) {
+fix_outliers <- function(data, column_details, method) {
   # Apply imputation steps to columns based on details
   for (detail in column_details) {
     col_name <- detail$column
@@ -266,7 +233,11 @@ fix_outliers <- function(
     step_name <- detail$step
     value <- detail$value
     
-    outlier_idx = get_outliers_indexes(data[[col_name]])
+    if (col_type == "QUANTITATIVE") {
+      outlier_idx = get_outliers_indexes(data[[col_name]])
+    } else {
+      next
+    }
     
     if (!is.null(step_name) &&
         nzchar(step_name) &&
@@ -277,7 +248,7 @@ fix_outliers <- function(
         data[[col_name]] <- func(data[[col_name]], col_type, outlier_idx, value)
       }
       else if (step_name == "remove") {
-        data <- func(data, col_name)
+        data <- func(data, col_name, outlier_idx)
       }
       else {
         data[[col_name]] <- func(data[[col_name]], col_type, outlier_idx) 
@@ -289,12 +260,7 @@ fix_outliers <- function(
   return(data)
 }
 
-
-fix_inconsistencies <- function(
-    data,
-    column_details,
-    method
-) {
+fix_inconsistencies <- function(data, column_details, method) {
   # Apply imputation steps to columns based on details
   for (detail in column_details) {
     col_name <- detail$column
@@ -313,7 +279,7 @@ fix_inconsistencies <- function(
         data[[col_name]] <- func(data[[col_name]], col_type, inconsistent_idx, value)
       }
       else if (step_name == "remove") {
-        data <- func(data, col_name)
+        data <- func(data, col_name, inconsistent_idx)
       }
       else {
         data[[col_name]] <- func(data[[col_name]], col_type, inconsistent_idx) 
@@ -325,12 +291,7 @@ fix_inconsistencies <- function(
   return(data)
 }
 
-# Main pre-analysis cleaning function aggregating checks
-pre_processing_cleaning <- function(
-    data,
-    column_details,
-    method
-) {
+data_cleaning <- function(data, column_details, method) {
   func = get(method)
   result = func(data, column_details, method)
   return(result)

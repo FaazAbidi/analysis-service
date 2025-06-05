@@ -1,9 +1,15 @@
-
-
+replace_na_nan_with_empty <- function(df) {
+  # Replace NA and NaN with empty strings in the dataframe
+  df[] <- lapply(df, function(x) {
+    x[is.na(x) | is.nan(x)] <- ""
+    return(x)
+  })
+  return(df)
+}
 
 get_column_details_from_json <- function(data) {
+  # Extract column details from JSON input
   column_names <- names(data$columns)
-  
   column_info <- lapply(column_names, function(col) {
     list(column = col, type = data$columns[[col]]$type,
          step = data$columns[[col]]$step,
@@ -13,8 +19,8 @@ get_column_details_from_json <- function(data) {
   return(column_info)
 }
 
-
 average_decimal_places <- function(column) {
+  # Calculate the average number of decimal places in a numeric column
   count_decimals <- function(x) {
     s <- format(x, scientific = FALSE, trim = TRUE)
     s <- sub("0+$", "", s)

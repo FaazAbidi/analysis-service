@@ -1,26 +1,26 @@
-library(jsonlite)
-# if (!require("here")) install.packages("here")
-library(here)
-
-# Load necessary scripts for data processing
 source("analysis/utils/utils.R")
 source("analysis/pre_processing/pp_data_collection.R")
 source("analysis/pre_processing/pp_data_cleaning.R")
+source("analysis/pre_processing/pp_data_transformation.R")
+
+library(jsonlite)
+library(here)
 
 # Main function to perform the full pre-analysis workflow
 pre_processing <- function(
     file_path,
     column_details,
+    technique,
     method
 ) {
   # Load data from file using get_dataframe
   data <- get_dataframe(file_path)
   
   # Perform data cleaning analysis
-  pp_cleaning <- pre_processing_cleaning(data, column_details, method)
-  return(pp_cleaning)
+  main_method = get(technique)
+  processes_data <- main_method(data, column_details, method)
+  return(processes_data)
 }
-
 
 main <- function(
     params_path,
@@ -30,12 +30,13 @@ main <- function(
   params <- fromJSON(params_path)
   relevant_columns <- names(params$columns)
   column_details <- get_column_details_from_json(params)
+  technique <- params$technique
   method <- params$method
   model <- params$model
   target <- params$target
   
-  result <- pre_processing(input_data_path, column_details, method)
-  write_dataframe(result, output_data_path)
+  result <- pre_processing(input_data_path, column_details, technique, method)
+  write_dataframe(replace_na_nan_with_empty(result), output_data_path)
 }
 
 
@@ -76,16 +77,16 @@ cat("Total elapsed time:", format(elapsed_time), "\n")
 quit(status = status)
 
 
-################################## will be removed #############################
+# ################################## will be removed #############################
 # cwd = "C:/Users/ahsan/Documents/My Data (without drive)/analysis-service"
 # cat("Current working directory:", getwd(), "\n")
 # start_time <- Sys.time()
 # main(
-#   file.path(cwd,"analysis", "input", "params_inconsistencies.json"),
-#   file.path(cwd,"analysis", "input", "raw_data_new.csv"),
-#   file.path(cwd,"analysis", "output", "processed_data_new.csv")
+#   file.path(cwd,"analysis", "input", "input_for_pre_processing_synthetic.json"),
+#   file.path(cwd,"analysis", "input", "synthetic_dataset.csv"),
+#   file.path(cwd,"analysis", "output", "processed_synthetic_dataset.csv")
 # )
 # end_time <- Sys.time()
 # elapsed_time <- end_time - start_time
 # print(elapsed_time)
-################################################################################
+# ################################################################################
