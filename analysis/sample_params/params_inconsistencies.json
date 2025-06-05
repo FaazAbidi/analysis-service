@@ -1,0 +1,17 @@
+{ "technique": "data_cleaning",
+  "method": "fix_inconsistencies",
+  "taskMethodId": "213",
+  "target": null,
+  "columns": {
+    "Name": {
+      "type": "QUALITATIVE",
+      "step": "remove",
+      "value": null
+    },
+    "Age": {
+      "type": "QUANTITATIVE",
+      "step": "impute_mean",
+      "value": null
+    }
+  }
+}

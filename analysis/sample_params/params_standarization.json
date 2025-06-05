@@ -1,0 +1,17 @@
+{ "technique": "data_transformation",
+  "method": "perform_standarization",
+  "taskMethodId": "213",
+  "target": null,
+  "columns": {
+    "Performance_Score": {
+      "type": "QUANTITATIVE",
+      "step": null,
+      "value": null
+    },
+    "Age": {
+      "type": "QUANTITATIVE",
+      "step": null,
+      "value": null
+    }
+  }
+}

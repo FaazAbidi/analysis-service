@@ -1,0 +1,22 @@
+{ "technique": "data_cleaning",
+  "method": "fix_missing",
+  "taskMethodId": "213",
+  "target": null,
+  "columns": {
+    "Age": {
+      "type": "QUANTITATIVE",
+      "step": "impute_random",
+      "value": null
+    },
+    "Salary": {
+      "type": "QUANTITATIVE",
+      "step": "impute_median",
+      "value": null
+    },
+    "Gender": {
+      "type": "QUALITATIVE",
+      "step": "impute_mode",
+      "value": null
+    }
+  }
+}

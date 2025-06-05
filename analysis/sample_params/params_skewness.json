@@ -1,0 +1,17 @@
+{ "technique": "data_transformation",
+  "method": "fix_skewness",
+  "taskMethodId": "213",
+  "target": null,
+  "columns": {
+    "Salary": {
+      "type": "QUANTITATIVE",
+      "step": "log",
+      "value": null
+    },
+    "Age": {
+      "type": "QUANTITATIVE",
+      "step": "sqrt",
+      "value": null
+    }
+  }
+}

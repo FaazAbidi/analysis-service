@@ -1,0 +1,17 @@
+{ "technique": "data_cleaning",
+  "method": "fix_outliers",
+  "taskMethodId": "213",
+  "target": null,
+  "columns": {
+    "Age": {
+      "type": "QUANTITATIVE",
+      "step": "impute_constant",
+      "value": -1
+    },
+    "Salary": {
+      "type": "QUANTITATIVE",
+      "step": "impute_random",
+      "value": null
+    }
+  }
+}
