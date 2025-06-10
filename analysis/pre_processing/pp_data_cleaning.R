@@ -70,16 +70,16 @@ impute_mean <- function(col, column_type, missing_idx) {
 }
 
 impute_median <- function(col, column_type, missing_idx) {
-  # Imputes missing numeric values with median rounded to 1 decimal
+  # Imputes missing numeric values with mean rounded to 1 decimal
   if (column_type != "QUANTITATIVE") {
-    warning("impute_median expects QUANTITATIVE column. Returning column unchanged.")
+    warning("impute_mean expects QUANTITATIVE column. Returning column unchanged.")
     return(col)
   }
   
   col_num <- suppressWarnings(as.numeric(as.character(col)))
   
   if (length(col[!missing_idx]) == 0) {
-    warning("Returning column unchanged.")
+    warning("No non-missing values to compute mean. Returning column unchanged.")
     return(col)
   }
   
@@ -106,16 +106,9 @@ impute_mode <- function(col, column_type, missing_idx) {
   tab <- tabulate(match(col_char, uniq_vals))
   mode_val <- uniq_vals[which.max(tab)]
   
-  col_char[missing_idx] <- mode_val
+  col[missing_idx] <- mode_val
   
-  if (column_type == "QUANTITATIVE") {
-    col_num <- suppressWarnings(as.numeric(col_char))
-    result <- col_char
-    result[!is.na(col_num)] <- as.character(col_num[!is.na(col_num)])
-    return(result)
-  } else {
-    return(col_char)
-  }
+  return(col)
 }
 
 impute_random <- function(col, column_type, missing_idx) {

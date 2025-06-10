@@ -1,0 +1,32 @@
+{
+  "method": "pre_analysis",
+  "model": "Logistic Regression",
+  "target": "Performance_Score",
+  "threshold_check_categorical": 0.3,
+  "threshold_check_skewness": 1,
+  "threshold_sampling": 100,
+  "threshold_check_dimensionality": 0.5,
+  "threshold_check_vif": 5,
+  "columns": {
+    "Name": {
+      "type": "QUALITATIVE",
+      "step": null
+    },
+    "Age": {
+      "type": "QUANTITATIVE",
+      "step": null
+    },
+    "Salary": {
+      "type": "QUANTITATIVE",
+      "step": null
+    },
+    "Gender": {
+      "type": "QUALITATIVE",
+      "step": null
+    },
+    "Performance_Score": {
+      "type": "QUANTITATIVE",
+      "step": null
+    }
+  }
+}
