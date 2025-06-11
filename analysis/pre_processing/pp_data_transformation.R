@@ -93,7 +93,12 @@ fix_skewness <- function(data, column_details) {
   return(data)
 }
 
-data_transformation <- function(data, column_details, method) {
+data_transformation <- function(data,
+                                column_details,
+                                method,
+                                step,
+                                value,
+                                target) {
   # Main function to apply transformations based on the selected method
   func = get(method)
   result = func(data, column_details)

@@ -284,7 +284,12 @@ fix_inconsistencies <- function(data, column_details, method) {
   return(data)
 }
 
-data_cleaning <- function(data, column_details, method) {
+data_cleaning <- function(data,
+                          column_details,
+                          method,
+                          step,
+                          value,
+                          target) {
   func = get(method)
   result = func(data, column_details, method)
   return(result)
