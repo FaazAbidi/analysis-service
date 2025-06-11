@@ -1,14 +1,21 @@
 { "technique": "data_transformation",
   "method": "perform_standarization",
+  "step": null,
+  "value": null,
   "taskMethodId": "213",
   "target": null,
   "columns": {
-    "Performance_Score": {
+    "Salary": {
       "type": "QUANTITATIVE",
       "step": null,
       "value": null
     },
     "Age": {
+      "type": "QUANTITATIVE",
+      "step": null,
+      "value": null
+    },
+    "Performance_Score": {
       "type": "QUANTITATIVE",
       "step": null,
       "value": null

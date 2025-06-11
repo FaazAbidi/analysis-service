@@ -1,5 +1,7 @@
 { "technique": "feature_engineering",
   "method": "perform_one_hot_encoding",
+  "step": null,
+  "value": null,
   "taskMethodId": "213",
   "target": null,
   "columns": {

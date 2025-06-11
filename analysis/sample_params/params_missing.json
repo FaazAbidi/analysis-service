@@ -1,5 +1,7 @@
 { "technique": "data_cleaning",
   "method": "fix_missing",
+  "step": null,
+  "value": null,
   "taskMethodId": "213",
   "target": null,
   "columns": {
@@ -13,9 +15,9 @@
       "step": "impute_median",
       "value": null
     },
-    "Gender": {
+    "Department": {
       "type": "QUALITATIVE",
-      "step": "impute_mode",
+      "step": "impute_random",
       "value": null
     }
   }

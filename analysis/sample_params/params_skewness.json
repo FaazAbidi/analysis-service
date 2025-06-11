@@ -1,5 +1,7 @@
 { "technique": "data_transformation",
   "method": "fix_skewness",
+  "step": null,
+  "value": null,
   "taskMethodId": "213",
   "target": null,
   "columns": {

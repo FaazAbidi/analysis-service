@@ -1,0 +1,8 @@
+{ "technique": "data_reduction",
+  "method": "perform_sampling",
+  "step": null,
+  "value": 75,
+  "taskMethodId": "213",
+  "target": null,
+  "columns": null
+}

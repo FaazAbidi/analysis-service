@@ -1,5 +1,7 @@
 { "technique": "data_cleaning",
   "method": "fix_inconsistencies",
+  "step": null,
+  "value": null,
   "taskMethodId": "213",
   "target": null,
   "columns": {
@@ -10,7 +12,7 @@
     },
     "Age": {
       "type": "QUANTITATIVE",
-      "step": "impute_mean",
+      "step": "impute_mode",
       "value": null
     }
   }

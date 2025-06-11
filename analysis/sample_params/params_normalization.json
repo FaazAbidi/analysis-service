@@ -1,5 +1,7 @@
 { "technique": "data_transformation",
   "method": "perform_normalization",
+  "step": null,
+  "value": null,
   "taskMethodId": "213",
   "target": null,
   "columns": {

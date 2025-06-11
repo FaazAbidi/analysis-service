@@ -1,16 +1,18 @@
 { "technique": "data_cleaning",
   "method": "fix_outliers",
+  "step": null,
+  "value": null,
   "taskMethodId": "213",
   "target": null,
   "columns": {
     "Age": {
       "type": "QUANTITATIVE",
-      "step": "impute_constant",
-      "value": -1
+      "step": "impute_median",
+      "value": null
     },
     "Salary": {
       "type": "QUANTITATIVE",
-      "step": "impute_random",
+      "step": "impute_median",
       "value": null
     }
   }
