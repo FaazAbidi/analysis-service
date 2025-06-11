@@ -50,7 +50,7 @@ skewness <- function(col, step) {
   return(transformed_col)
 }
 
-perform_standarization <- function(data, column_details, method) {
+perform_standarization <- function(data, column_details) {
   # Applies standardization to specified columns
   for (detail in column_details) {
     col_name <- detail$column
@@ -64,7 +64,7 @@ perform_standarization <- function(data, column_details, method) {
   return(data)
 }
 
-perform_normalization <- function(data, column_details, method) {
+perform_normalization <- function(data, column_details) {
   # Applies normalization to specified columns
   for (detail in column_details) {
     col_name <- detail$column
@@ -78,7 +78,7 @@ perform_normalization <- function(data, column_details, method) {
   return(data)
 }
 
-fix_skewness <- function(data, column_details, method) {
+fix_skewness <- function(data, column_details) {
   # Applies skewness transformation to specified columns
   for (detail in column_details) {
     col_name <- detail$column
@@ -96,6 +96,6 @@ fix_skewness <- function(data, column_details, method) {
 data_transformation <- function(data, column_details, method) {
   # Main function to apply transformations based on the selected method
   func = get(method)
-  result = func(data, column_details, method)
+  result = func(data, column_details)
   return(result)
 }
