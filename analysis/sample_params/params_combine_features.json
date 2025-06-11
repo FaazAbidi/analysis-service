@@ -1,0 +1,17 @@
+{ "technique": "feature_engineering",
+  "method": "perform_combine_features",
+  "taskMethodId": "213",
+  "target": null,
+  "columns": {
+    "Performance_Score": {
+      "type": "QUANTITATIVE",
+      "step": "+",
+      "value": null
+    },
+    "Salary": {
+      "type": "QUANTITATIVE",
+      "step": "+",
+      "value": null
+    }
+  }
+}

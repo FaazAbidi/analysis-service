@@ -1,0 +1,17 @@
+{ "technique": "feature_engineering",
+  "method": "perform_binning",
+  "taskMethodId": "213",
+  "target": null,
+  "columns": {
+    "Age": {
+      "type": "QUANTITATIVE",
+      "step": "equal_depth",
+      "value": 3
+    },
+    "Salary": {
+      "type": "QUANTITATIVE",
+      "step": "equal_width",
+      "value": 5
+    }
+  }
+}

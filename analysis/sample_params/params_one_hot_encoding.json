@@ -1,0 +1,17 @@
+{ "technique": "feature_engineering",
+  "method": "perform_one_hot_encoding",
+  "taskMethodId": "213",
+  "target": null,
+  "columns": {
+    "Gender": {
+      "type": "QUALITATIVE",
+      "step": null,
+      "value": null
+    },
+    "Department": {
+      "type": "QUALITATIVE",
+      "step": null,
+      "value": null
+    }
+  }
+}
