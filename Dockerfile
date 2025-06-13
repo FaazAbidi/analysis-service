@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install required R packages
-RUN R -e "install.packages(c('readr', 'dplyr'), repos='https://cloud.r-project.org/')"
+RUN R -e "install.packages(c('readr', 'dplyr', 'jsonlite'), repos='https://cloud.r-project.org/')"
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
