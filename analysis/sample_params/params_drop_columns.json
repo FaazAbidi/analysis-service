@@ -1,16 +1,11 @@
-{ "technique": "feature_engineering",
+{ "technique": "data_reduction",
   "method": "perform_drop_columns",
   "step": null,
   "value": null,
   "taskMethodId": "213",
   "target": null,
   "columns": {
-    "Gender": {
-      "type": "QUALITATIVE",
-      "step": null,
-      "value": null
-    },
-    "Department": {
+    "Join_Date": {
       "type": "QUALITATIVE",
       "step": null,
       "value": null

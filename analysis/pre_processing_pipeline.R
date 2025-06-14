@@ -2,6 +2,8 @@ source("analysis/utils/utils.R")
 source("analysis/pre_processing/pp_data_collection.R")
 source("analysis/pre_processing/pp_data_cleaning.R")
 source("analysis/pre_processing/pp_data_transformation.R")
+source("analysis/pre_processing/pp_feature_engineering.R")
+source("analysis/pre_processing/pp_data_reduction.R")
 
 library(jsonlite)
 library(here)
@@ -11,14 +13,22 @@ pre_processing <- function(
     file_path,
     column_details,
     technique,
-    method
+    method,
+    step,
+    value,
+    target
 ) {
   # Load data from file using get_dataframe
   data <- get_dataframe(file_path)
   
   # Perform data cleaning analysis
   main_method = get(technique)
-  processes_data <- main_method(data, column_details, method)
+  processes_data <- main_method(data,
+                                column_details,
+                                method,
+                                step,
+                                value,
+                                target)
   return(processes_data)
 }
 
@@ -27,15 +37,25 @@ main <- function(
     input_data_path,
     output_data_path
 ) {
+  
   params <- fromJSON(params_path)
   relevant_columns <- names(params$columns)
   column_details <- get_column_details_from_json(params)
   technique <- params$technique
   method <- params$method
-  model <- params$model
+  step <- params$step
+  value <- params$value
   target <- params$target
   
-  result <- pre_processing(input_data_path, column_details, technique, method)
+  result <- pre_processing(
+    input_data_path,
+    column_details,
+    technique,
+    method,
+    step,
+    value,
+    target)
+  
   write_dataframe(replace_na_nan_with_empty(result), output_data_path)
 }
 
@@ -77,14 +97,15 @@ cat("Total elapsed time:", format(elapsed_time), "\n")
 quit(status = status)
 
 
-# ################################## will be removed #############################
+# ############################## FOR TESTING LOCALLY #############################
+# ################################ WILL BE REMOVED ###############################
 # cwd = "C:/Users/ahsan/Documents/My Data (without drive)/analysis-service"
 # cat("Current working directory:", getwd(), "\n")
 # start_time <- Sys.time()
 # main(
-#   file.path(cwd,"analysis", "input", "input_for_pre_processing_synthetic.json"),
-#   file.path(cwd,"analysis", "input", "synthetic_dataset.csv"),
-#   file.path(cwd,"analysis", "output", "processed_synthetic_dataset.csv")
+#   file.path(cwd,"analysis", "input", "params_pca.json"),
+#   file.path(cwd,"analysis", "output", "processed_data_new_7.csv"),
+#   file.path(cwd,"analysis", "output", "processed_data_new_8.csv")
 # )
 # end_time <- Sys.time()
 # elapsed_time <- end_time - start_time
