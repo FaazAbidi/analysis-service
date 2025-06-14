@@ -1,0 +1,24 @@
+{ "technique": "feature_engineering",
+  "method": "perform_drop_columns",
+  "step": null,
+  "value": null,
+  "taskMethodId": "213",
+  "target": null,
+  "columns": {
+    "Gender": {
+      "type": "QUALITATIVE",
+      "step": null,
+      "value": null
+    },
+    "Department": {
+      "type": "QUALITATIVE",
+      "step": null,
+      "value": null
+    },
+    "Name": {
+      "type": "QUALITATIVE",
+      "step": null,
+      "value": null
+    }
+  }
+}

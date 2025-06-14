@@ -1,0 +1,19 @@
+{ "technique": "feature_engineering",
+  "method": "perform_label_encoding",
+  "step": null,
+  "value": null,
+  "taskMethodId": "213",
+  "target": null,
+  "columns": {
+    "Gender": {
+      "type": "QUALITATIVE",
+      "step": null,
+      "value": null
+    },
+    "Department": {
+      "type": "QUALITATIVE",
+      "step": null,
+      "value": null
+    }
+  }
+}
