@@ -1,8 +1,7 @@
-source("utils/cons.R")
-source("pre_analysis/pa_data_cleaning.R")
+source("analysis/utils/cons.R")
+source("analysis/pre_analysis/pa_data_cleaning.R")
 
 # Load necessary libraries
-if (!require("e1071")) install.packages("e1071")
 library(e1071)
 
 # Check skewness of quantitative columns and recommend transformations if needed

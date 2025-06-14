@@ -1,7 +1,6 @@
 source("analysis/utils/cons.R")
 
 # Load necessary libraries
-if (!require("car")) install.packages("car")
 library(car)
 
 # Check if sampling is needed based on row count threshold

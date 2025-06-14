@@ -1,9 +1,7 @@
 source("analysis/utils/cons.R")
 
 # Load necessary libraries
-if (!require("dplyr")) install.packages("dplyr")
 library(dplyr)
-if (!require("jsonlite")) install.packages("jsonlite")
 library(jsonlite)
 
 

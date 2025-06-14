@@ -1,4 +1,4 @@
-source("utils/cons.R")
+source("analysis/utils/cons.R")
 
 # Check categorical columns based on heuristic: character or factor with low cardinality
 check_categorical_columns <- function(
