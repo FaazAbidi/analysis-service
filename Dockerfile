@@ -6,11 +6,16 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     r-base \
     r-base-dev \
+    libxml2-dev \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libgit2-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Install required R packages
-RUN R -e "install.packages(c('readr', 'dplyr', 'jsonlite', 'here', 'readxl', 'car', 'e1071'), repos='https://cloud.r-project.org/')"
+RUN R -e "install.packages(c('readr', 'dplyr', 'jsonlite', 'here', 'readxl', 'car', 'e1071'), repos='https://cloud.r-project.org/')" && \
+    R -e "install.packages('mlr', dependencies=TRUE, repos='https://cloud.r-project.org/')"
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

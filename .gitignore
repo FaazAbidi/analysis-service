@@ -57,3 +57,4 @@ Thumbs.db
 
 json/
 unprocessed_files/
+.env
