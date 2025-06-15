@@ -9,6 +9,7 @@ is_sampling_required <- function(
     threshold_sampling = DEFAULT_THRESHOLD_FOR_SAMPLING
 ) {
   
+  
   # Use the default threshold if NULL
   if (is.null(threshold_sampling)) {
     threshold_sampling <- DEFAULT_THRESHOLD_FOR_SAMPLING

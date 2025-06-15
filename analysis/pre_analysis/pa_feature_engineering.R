@@ -10,6 +10,7 @@ check_categorical_columns <- function(
     threshold_check_categorical = DEFAULT_PERCENTAGE_CHECK_CATEGORICAL
 ) {
   
+  
   # Use the default threshold if NULL
   if (is.null(threshold_check_categorical)) {
     threshold_check_categorical <- DEFAULT_PERCENTAGE_CHECK_CATEGORICAL

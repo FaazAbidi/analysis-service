@@ -14,6 +14,7 @@ check_skewness <- function(
   library(jsonlite)
   skewed_columns <- c()
   
+  
   # Use the default threshold if NULL
   if (is.null(threshold_check_skewness)) {
     threshold_check_skewness <- DEFAULT_THRESHOLD_CHECK_SKEWNESS
