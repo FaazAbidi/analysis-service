@@ -150,27 +150,25 @@ impute_random <- function(col, column_type, missing_idx) {
 
 
 impute_constant <- function(col, column_type, missing_idx, value) {
-  # Imputes missing values with a constant specified by `value`
   if (!(column_type %in% c("QUALITATIVE", "QUANTITATIVE"))) {
     warning("impute_constant expects QUALITATIVE or QUANTITATIVE column. Returning column unchanged.")
     return(col)
   }
   
-  col_char <- as.character(col)
-  
-  if (length(col_char[!missing_idx]) == 0) {
+  if (length(col[!missing_idx]) == 0) {
     warning("Returning column unchanged.")
     return(col)
   }
   
-  col_char[missing_idx] <- as.character(value)
-  
   if (column_type == "QUANTITATIVE") {
-    col_num <- suppressWarnings(as.numeric(col_char))
-    result <- col_char
-    result[!is.na(col_num)] <- as.character(col_num[!is.na(col_num)])
+    # For numeric columns, ensure numeric output
+    result <- as.numeric(as.character(col))
+    result[missing_idx] <- as.numeric(value)
     return(result)
   } else {
+    # For qualitative columns
+    col_char <- as.character(col)
+    col_char[missing_idx] <- as.character(value)
     return(col_char)
   }
 }

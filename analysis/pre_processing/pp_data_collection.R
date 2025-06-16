@@ -28,7 +28,16 @@ detect_separator <- function(file_path) {
 read_csv_file <- function(file_path) {
   # Read CSV file with automatic separator detection
   separator <- detect_separator(file_path)
+  
+  # First read the column names directly from the file
+  first_line <- readLines(file_path, n = 1)
+  col_names <- unlist(strsplit(first_line, separator))
+  
+  # Read the data
   data <- read_csv(file_path, delim = separator, col_types = cols())
+  
+  # Ensure column names match the originals
+  names(data) <- col_names
   return(data)
 }
 
@@ -47,22 +56,39 @@ read_json_file <- function(file_path) {
 read_text_file <- function(file_path) {
   # Read text file with automatic separator detection
   separator <- detect_separator(file_path)
+  
+  # First read the column names directly from the file
+  first_line <- readLines(file_path, n = 1)
+  col_names <- unlist(strsplit(first_line, separator))
+  
+  # Read the data
   data <- read.table(
     file_path,
     header = TRUE,
     sep = separator,
     stringsAsFactors = FALSE
   )
+  
+  # Ensure column names match the originals
+  names(data) <- col_names
   return(data)
 }
 
 write_csv_file <- function(file_path, data) {
-  # Write dataframe to CSV
   dir_path <- dirname(file_path)
   if (!dir.exists(dir_path)) {
     dir.create(dir_path, recursive = TRUE)
   }
-  write.csv(data, file = file_path, row.names = FALSE)
+  # Preserve original column names
+  orig_names <- names(data)
+  # Write with temporary names
+  write.csv(data, file = file_path, row.names = FALSE, quote = FALSE)
+  # Read the file and replace the header line
+  lines <- readLines(file_path)
+  if (length(lines) > 0) {
+    lines[1] <- paste(orig_names, collapse = ",")
+    writeLines(lines, file_path)
+  }
 }
 
 write_json_file <- function(file_path, data) {
@@ -88,11 +114,19 @@ get_dataframe <- function(file_path) {
   na_columns <- c("NA", "NaN", "Na", "")
   
   if (grepl("\\.csv$", file_path, ignore.case = TRUE)) {
+    # Read the column names from the first line
+    first_line <- readLines(file_path, n = 1)
+    col_names <- unlist(strsplit(first_line, ","))
+    
+    # Read the data
     data <- read.csv(
       file_path,
       na.strings = na_columns,
       stringsAsFactors = FALSE
     )
+    
+    # Restore original column names
+    names(data) <- col_names
   } else if (grepl("\\.xlsx$", file_path, ignore.case = TRUE)) {
     data <- read_excel_file(file_path)
   } else if (grepl("\\.json$", file_path, ignore.case = TRUE)) {
@@ -114,13 +148,29 @@ write_dataframe <- function(data, file_path) {
   }
   
   if (grepl("\\.csv$", file_path, ignore.case = TRUE)) {
+    # Preserve original column names
+    orig_names <- names(data)
+    # Write file
     write.csv(data, file = file_path, row.names = FALSE)
+    # Read the file and replace the header line
+    lines <- readLines(file_path)
+    if (length(lines) > 0) {
+      lines[1] <- paste(orig_names, collapse = ",")
+      writeLines(lines, file_path)
+    }
   } else if (grepl("\\.xlsx$", file_path, ignore.case = TRUE)) {
     write_xlsx(data, path = file_path)
   } else if (grepl("\\.json$", file_path, ignore.case = TRUE)) {
     write_json(data, path = file_path, pretty = TRUE, auto_unbox = TRUE)
   } else if (grepl("\\.txt$", file_path, ignore.case = TRUE)) {
+    # For text files, we'll use a similar approach
+    orig_names <- names(data)
     write.table(data, file = file_path, sep = "\t", row.names = FALSE, quote = FALSE)
+    lines <- readLines(file_path)
+    if (length(lines) > 0) {
+      lines[1] <- paste(orig_names, collapse = "\t")
+      writeLines(lines, file_path)
+    }
   } else {
     stop("Unsupported file format for writing")
   }
