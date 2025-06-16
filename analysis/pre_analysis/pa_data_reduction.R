@@ -8,6 +8,13 @@ is_sampling_required <- function(
     df,
     threshold_sampling = DEFAULT_THRESHOLD_FOR_SAMPLING
 ) {
+  
+  
+  # Use the default threshold if NULL
+  if (is.null(threshold_sampling)) {
+    threshold_sampling <- DEFAULT_THRESHOLD_FOR_SAMPLING
+  }
+  
   return(nrow(df) > threshold_sampling)
 }
 
@@ -19,6 +26,11 @@ check_multicollinearity <- function(
     threshold_check_vif = DEFAULT_THRESHOLD_CHECK_VIF
 ) {
   if (is.null(target)) return(NULL)
+  
+  # Use the default threshold if NULL
+  if (is.null(threshold_check_vif)) {
+    threshold_check_vif <- DEFAULT_THRESHOLD_CHECK_VIF
+  }
   
   data <- na.omit(data)
   
@@ -71,6 +83,12 @@ check_high_dimensionality <- function(
     data,
     threshold_check_dimensionality = DEFAULT_THRESHOLD_CHECK_DIMENSIONALITY
 ) {
+  
+  # Use the default threshold if NULL
+  if (is.null(threshold_check_dimensionality)) {
+    threshold_check_dimensionality <- DEFAULT_THRESHOLD_CHECK_DIMENSIONALITY
+  }
+  
   data <- na.omit(data)
   numeric_data <- data[sapply(data, is.numeric)]
   ratio <- ncol(numeric_data) / nrow(numeric_data)

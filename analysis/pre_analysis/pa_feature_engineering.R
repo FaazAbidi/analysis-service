@@ -1,5 +1,7 @@
 source("analysis/utils/cons.R")
 
+library(jsonlite)
+
 # Check categorical columns based on heuristic: character or factor with low cardinality
 check_categorical_columns <- function(
     data,
@@ -7,7 +9,12 @@ check_categorical_columns <- function(
     column_types = NULL,
     threshold_check_categorical = DEFAULT_PERCENTAGE_CHECK_CATEGORICAL
 ) {
-  library(jsonlite)
+  
+  
+  # Use the default threshold if NULL
+  if (is.null(threshold_check_categorical)) {
+    threshold_check_categorical <- DEFAULT_PERCENTAGE_CHECK_CATEGORICAL
+  }
   
   # Parse column_types if it's a JSON string
   if (!is.null(column_types) && is.character(column_types)) {
