@@ -1,0 +1,8 @@
+{ "technique": "data_reduction",
+  "method": "perform_pca_reduction",
+  "step": null,
+  "value": 0.95,
+  "taskMethodId": "213",
+  "target": "Performance_Score",
+  "columns": null
+}
