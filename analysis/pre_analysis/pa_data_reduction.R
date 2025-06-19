@@ -1,7 +1,7 @@
 source("analysis/utils/cons.R")
 
 # Load necessary libraries
-library(car)
+# library(car)
 
 # Check if sampling is needed based on row count threshold
 is_sampling_required <- function(
@@ -33,6 +33,11 @@ check_multicollinearity <- function(
   }
   
   data <- na.omit(data)
+  
+  # Check if there are no rows left
+  if (nrow(data) == 0) {
+    return(FALSE)
+  }
   
   if (!(target %in% names(data))) stop("Target variable not found in data.")
   
@@ -108,11 +113,7 @@ pre_analysis_reduction <- function(
   multicollinearity_exists <- check_multicollinearity(data, target, column_types, threshold_check_vif)
   high_dimensionality_exists <- check_high_dimensionality(data, threshold_check_dimensionality)
   
-  pca_required <- if (is.null(multicollinearity_exists)) {
-    "Target is required"
-  } else {
-    multicollinearity_exists || high_dimensionality_exists
-  }
+  pca_required <- ifelse(multicollinearity_exists, TRUE, FALSE)
   
   result <- list(
     is_sampling_required = sampling_needed,

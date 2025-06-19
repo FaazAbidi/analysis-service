@@ -7,6 +7,7 @@ check_categorical_columns <- function(
     data,
     model,
     column_types = NULL,
+    encoding_type,
     threshold_check_categorical = DEFAULT_PERCENTAGE_CHECK_CATEGORICAL
 ) {
   
@@ -57,11 +58,21 @@ check_categorical_columns <- function(
   
   recommendation <- paste0("No categorical columns requiring encoding for ", model, ".")
   
-  if (length(cat_cols) > 0) {
+  if (length(cat_cols) > 0 && encoding_type == "one_hot") {
     if (is.null(model)) {
       recommendation <- "One-hot encoding required for columns."
     } else if (model %in% NEEDS_ONE_HOT_ENCODING) {
       recommendation <- paste0("One-hot encoding required for columns for ", model, ".")
+    } else {
+      recommendation <- paste0("Categorical columns detected but not an issue for tree-based models like ", model, ".")
+    }
+  }
+  
+  if (length(cat_cols) > 0 && encoding_type == "label") {
+    if (is.null(model)) {
+      recommendation <- "Label encoding required for columns."
+    } else if (model %in% NEEDS_ONE_HOT_ENCODING) {
+      recommendation <- paste0("Label encoding required for columns for ", model, ".")
     } else {
       recommendation <- paste0("Categorical columns detected but not an issue for tree-based models like ", model, ".")
     }
@@ -77,15 +88,25 @@ pre_analysis_feature_engineering <- function(
     column_types,
     threshold_check_categorical
 ) {
-  categorical_columns <- check_categorical_columns(
+  categorical_columns_one_hot <- check_categorical_columns(
     data,
     model,
     column_types,
+    "one_hot",
+    threshold_check_categorical
+  )
+  
+  categorical_columns_label <- check_categorical_columns(
+    data,
+    model,
+    column_types,
+    "label",
     threshold_check_categorical
   )
   
   result <- list(
-    columns_require_one_hot_encoding = categorical_columns
+    columns_require_one_hot_encoding = categorical_columns_one_hot,
+    columns_require_label_encoding = categorical_columns_label
   )
   
   return(result)
