@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install required R packages
-RUN R -e "install.packages(c('dplyr', 'jsonlite', 'here', 'e1071', 'rio', 'MASS'), repos='https://cloud.r-project.org/')" && \
+RUN R -e "install.packages(c('dplyr', 'jsonlite', 'here', 'e1071', 'rio'), repos='https://cloud.r-project.org/')" && \
     R -e "install.packages('mlr', dependencies=TRUE, repos='https://cloud.r-project.org/')"
 
 COPY requirements.txt .

@@ -1,8 +1,6 @@
 source("analysis/utils/cons.R")
 source("analysis/utils/utils.R")
 
-library(MASS)
-
 standardization <- function(col) {
   # Applies Z-score standardization
   numeric_col <- suppressWarnings(as.numeric(col))
@@ -31,11 +29,6 @@ skewness <- function(col, step) {
   } else if (step == "sqrt") {
     # Square root transformation
     transformed_col <- sqrt(col)
-  } else if (step == "box-cox") {
-    # Box-Cox transformation (with auto lambda)
-    boxcox_result <- boxcox(col ~ 1, lambda = "auto")
-    lambda <- boxcox_result$x[which.max(boxcox_result$y)]
-    transformed_col <- (col^lambda - 1) / lambda
   } else if (step == "reciprocal") {
     # Reciprocal transformation
     transformed_col <- 1 / col
