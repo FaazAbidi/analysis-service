@@ -24,7 +24,7 @@ equal_width <- function(col, col_name, bin_size) {
               right = FALSE, 
               labels = bin_labels)
   
-  return(bins)
+  return(as.character(bins))
 }
 
 equal_depth <- function(col, col_name, bin_size) {
@@ -56,7 +56,7 @@ equal_depth <- function(col, col_name, bin_size) {
               right = FALSE, 
               labels = bin_labels)
   
-  return(bins)
+  return(as.character(bins))
 }
 
 perform_combine_features <- function(df, column_details, step, value) {
@@ -127,7 +127,7 @@ perform_binning <- function(data, column_details, step, value) {
         exists(step_name, mode = "function")) {
       func <- get(step_name)
       
-      data[[paste("Bin (", col_name, ")", sep = "")]] <- func(data[[col_name]], col_name, value)
+      data[[paste("Bin (", col_name, ")", sep = "")]] <- as.character(func(data[[col_name]], col_name, value))
     }
   }
   return(data)

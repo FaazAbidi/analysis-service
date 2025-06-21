@@ -151,7 +151,7 @@ write_dataframe <- function(data, file_path) {
     # Preserve original column names
     orig_names <- names(data)
     # Write file
-    write.csv(data, file = file_path, row.names = FALSE)
+    write.csv(data, file = file_path, row.names = FALSE, quote = FALSE)
     # Read the file and replace the header line
     lines <- readLines(file_path)
     if (length(lines) > 0) {
