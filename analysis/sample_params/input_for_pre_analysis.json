@@ -1,0 +1,11 @@
+{
+  "method": "pre_analysis",
+  "model": "Logistic Regression",
+  "target": "Alcohol",
+  "threshold_check_categorical": 0.3,
+  "threshold_check_skewness": 1,
+  "threshold_sampling": 100,
+  "threshold_check_dimensionality": 0.5,
+  "threshold_check_multicollinearity": 0.8,
+  "columns": null
+}
