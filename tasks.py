@@ -179,6 +179,7 @@ def process_with_r(task_method_id: int, user_id: str, json_file_path: str):
     """
     # Create a timestamp for unique filenames if none provided
     timestamp = int(time.time())
+    is_original_data = False
 
     try:
         supabase_client = get_supabase_client()
@@ -196,6 +197,10 @@ def process_with_r(task_method_id: int, user_id: str, json_file_path: str):
         
         prev_version: int = task_method.get("prev_version")
         
+        if task_method.get('name') == 'Original data':
+            is_original_data = True
+        
+        file_id = None
         # get parent file id
         parent_file_id = (
             supabase_client.table("TaskMethods")
@@ -205,19 +210,24 @@ def process_with_r(task_method_id: int, user_id: str, json_file_path: str):
             .execute()
             .data
         )
-        
+    
         if not parent_file_id:
             raise Exception(f"Parent file not found for id {prev_version}")
         
+        parent_task_name = parent_file_id.get("name")
         parent_file_id = parent_file_id.get("processed_file")
-        
-        if not parent_file_id:
+        file_id = parent_file_id
+
+        if parent_task_name == 'Original data':
+            is_original_data = True
+
+        if not file_id:
             raise Exception(f"Parent file not found for id {parent_file_id}")
 
         file_result = (
             supabase_client.table("Files")
             .select("id, path, file_name")
-            .eq("id", parent_file_id)
+            .eq("id", file_id)
             .execute()
         )
 
@@ -227,7 +237,7 @@ def process_with_r(task_method_id: int, user_id: str, json_file_path: str):
         file = file_result.data[0]
 
         logger.info(f"TaskMethod: {json.dumps(file, indent=2)}")
-
+        
         storage_file_path = file.get("path")
         file_name = file.get("file_name")
         # Create a directory for this specific task run using a timestamp
@@ -238,8 +248,18 @@ def process_with_r(task_method_id: int, user_id: str, json_file_path: str):
         input_file_path: str = os.path.join(task_directory, file_name)
 
         logger.info(f"File path: {input_file_path}")
+        
+        bucket_name = None
+        if is_original_data:
+            bucket_name = "raw-data"
+        else:
+            bucket_name = "processed-data"
+            
+        logger.info(f"is_original_data: {is_original_data}")
+        logger.info(f"storage_file_path: {storage_file_path}")
+        logger.info(f"bucket_name: {bucket_name}")
 
-        file_content = supabase_client.storage.from_("raw-data").download(storage_file_path)
+        file_content = supabase_client.storage.from_(bucket_name).download(storage_file_path)
         # download file from supabase
         with open(input_file_path, "wb+") as f:
             f.write(file_content)

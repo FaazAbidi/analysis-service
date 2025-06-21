@@ -19,7 +19,7 @@ pre_analysis <- function(
     threshold_check_skewness,
     threshold_sampling,
     threshold_check_dimensionality,
-    threshold_check_vif
+    threshold_check_multicollinearity
 ) {
   # Load data and subset relevant columns
   data <- get_dataframe(file_path)
@@ -31,7 +31,7 @@ pre_analysis <- function(
   pa_cleaning <- pre_analysis_cleaning(data, model, column_details)
   pa_transformation <- pre_analysis_transformation(data, model,column_details, threshold_check_skewness)
   pa_feature_engineering <- pre_analysis_feature_engineering(data, model, column_details, threshold_check_categorical)
-  pa_reduction <- pre_analysis_reduction(data, target, column_details, threshold_sampling, threshold_check_dimensionality, threshold_check_vif)
+  pa_reduction <- pre_analysis_reduction(data, target, column_details, threshold_sampling, threshold_check_dimensionality, threshold_check_multicollinearity)
   
   # Combine results
   result <- list(
@@ -62,7 +62,7 @@ main <- function(
   threshold_check_skewness <- params$threshold_check_skewness
   threshold_sampling <- params$threshold_sampling
   threshold_check_dimensionality <- params$threshold_check_dimensionality
-  threshold_check_vif <- params$threshold_check_vif
+  threshold_check_multicollinearity <- params$threshold_check_multicollinearity
   
   result <- pre_analysis(
     input_data_path,
@@ -74,7 +74,7 @@ main <- function(
     threshold_check_skewness,
     threshold_sampling,
     threshold_check_dimensionality,
-    threshold_check_vif
+    threshold_check_multicollinearity
   )
   
   write_json_string(output_params_path, result)
@@ -123,9 +123,9 @@ quit(status = status)
 # cat("Current working directory:", getwd(), "\n")
 # start_time <- Sys.time()
 # main(
-#   file.path(cwd,"analysis", "input", "input_for_pre_analysis_synthetic.json"),
-#   file.path(cwd,"analysis", "input", "synthetic_dataset.csv"),
-#   file.path(cwd,"analysis", "output", "pre_analysis_output_synthetic.json")
+#   file.path(cwd,"analysis", "input", "input_for_pre_analysis.json"),
+#   file.path(cwd,"analysis", "input", "wine.csv"),
+#   file.path(cwd,"analysis", "output", "pre_analysis_output.json")
 # )
 # end_time <- Sys.time()
 # elapsed_time <- end_time - start_time

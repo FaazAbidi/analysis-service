@@ -1,8 +1,12 @@
 replace_na_nan_with_empty <- function(df) {
   # Replace NA and NaN with empty strings in the dataframe
   df[] <- lapply(df, function(x) {
-    x[is.na(x) | is.nan(x)] <- ""
-    return(x)
+    if(is.numeric(x)) {
+      return(x)  # Leave numeric columns untouched
+    } else {
+      x[is.na(x) | is.nan(x)] <- ""
+      return(x)
+    }
   })
   return(df)
 }
