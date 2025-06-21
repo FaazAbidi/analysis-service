@@ -1,7 +1,5 @@
 source("analysis/utils/cons.R")
 
-# Load necessary libraries
-# library(car)
 
 # Check if sampling is needed based on row count threshold
 is_sampling_required <- function(
@@ -18,32 +16,27 @@ is_sampling_required <- function(
   return(nrow(df) > threshold_sampling)
 }
 
-# Check multicollinearity using VIF, returns TRUE if any VIF > threshold
+
 check_multicollinearity <- function(
     data,
     target,
     column_types = NULL,
-    threshold_check_vif = DEFAULT_THRESHOLD_CHECK_VIF
+    threshold_multicollinearity = DEFAULT_THRESHOLD_CHECK_MULTICOLLINEARITY
 ) {
   if (is.null(target)) return(NULL)
   
   # Use the default threshold if NULL
-  if (is.null(threshold_check_vif)) {
-    threshold_check_vif <- DEFAULT_THRESHOLD_CHECK_VIF
+  if (is.null(threshold_multicollinearity)) {
+    threshold_multicollinearity <- DEFAULT_THRESHOLD_CHECK_MULTICOLLINEARITY
   }
   
   data <- na.omit(data)
-  
-  # Check if there are no rows left
-  if (nrow(data) == 0) {
-    return(FALSE)
-  }
-  
+  if (nrow(data) == 0) return(FALSE)
   if (!(target %in% names(data))) stop("Target variable not found in data.")
   
-  # Parse column_types JSON string if necessary
+  # parse JSON column_types if needed
   if (!is.null(column_types) && is.character(column_types)) {
-    parsed <- fromJSON(column_types)
+    parsed <- jsonlite::fromJSON(column_types)
     if (is.data.frame(parsed)) {
       column_types <- lapply(seq_len(nrow(parsed)), function(i) {
         list(column = parsed$column[[i]], type = parsed$type[[i]])
@@ -51,11 +44,9 @@ check_multicollinearity <- function(
     }
   }
   
-  quantitative_cols <- c()
-  
+  quantitative_cols <- character()
   for (col_name in names(data)) {
     col_type <- NULL
-    
     if (!is.null(column_types)) {
       matched <- Filter(function(entry) {
         is.list(entry) && !is.null(entry[["column"]]) && entry[["column"]] == col_name
@@ -64,24 +55,26 @@ check_multicollinearity <- function(
         col_type <- matched[[1]][["type"]]
       }
     }
-    
-    if (is.null(col_type)) {
-      if (is.numeric(data[[col_name]])) {
-        quantitative_cols <- c(quantitative_cols, col_name)
-      }
-    } else if (col_type == "QUANTITATIVE") {
+    if (is.null(col_type) && is.numeric(data[[col_name]])) {
+      quantitative_cols <- c(quantitative_cols, col_name)
+    } else if (!is.null(col_type) && col_type == "QUANTITATIVE") {
       quantitative_cols <- c(quantitative_cols, col_name)
     }
   }
   
   numeric_data <- data[, quantitative_cols, drop = FALSE]
+  if (ncol(numeric_data) < 2) return(FALSE)
   
-  formula <- as.formula(paste(target, "~ ."))
-  model <- lm(formula, data = numeric_data)
-  vif_vals <- vif(model)
+  # compute pairwise correlations
+  corr_mat <- cor(numeric_data, use = "pairwise.complete.obs")
   
-  return(any(vif_vals > threshold_check_vif))
+  # extract upper triangular values without diagonal
+  abs_vals <- abs(corr_mat[upper.tri(corr_mat)])
+  
+  # check if any exceeds threshold
+  return(any(abs_vals > threshold_multicollinearity))
 }
+
 
 # Check if data is high dimensional: ratio of numeric features to rows > threshold
 check_high_dimensionality <- function(
@@ -107,10 +100,10 @@ pre_analysis_reduction <- function(
     column_types,
     threshold_sampling,
     threshold_check_dimensionality,
-    threshold_check_vif
+    threshold_check_multicollinearity
 ) {
   sampling_needed <- is_sampling_required(data, threshold_sampling)
-  multicollinearity_exists <- check_multicollinearity(data, target, column_types, threshold_check_vif)
+  multicollinearity_exists <- check_multicollinearity(data, target, column_types, threshold_check_multicollinearity)
   high_dimensionality_exists <- check_high_dimensionality(data, threshold_check_dimensionality)
   
   pca_required <- ifelse(multicollinearity_exists, TRUE, FALSE)
