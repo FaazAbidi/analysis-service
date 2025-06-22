@@ -1,0 +1,18 @@
+# Railway-specific Dockerfile
+# This uses the pre-built R base image from Docker Hub to avoid build timeouts
+
+FROM faazabidi/analysis-service-r-base:latest
+
+# Copy Python requirements and install them
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Railway uses PORT environment variable
+ENV PORT=8080
+EXPOSE $PORT
+
+# Command for Railway
+CMD gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120 

@@ -1,12 +1,54 @@
-.venv/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-.git/
+# Git files
+.git
 .gitignore
+
+# Documentation
+README.md
+*.md
+
+# Docker files (not needed in build context for the app image)
+Dockerfile.base
+docker-compose.yml
+build.sh
+
+# Environment files
 .env
-.dockerignore
-Dockerfile
-docker-compose.yml 
+.env.*
+
+# Python cache and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+
+# R files
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# Logs
+*.log
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+unprocessed_files/
+processed_files/
+json/ 

@@ -1,25 +1,12 @@
-FROM python:3.9-slim
+# Use our custom R base image from Docker Hub
+# Replace 'faazabidi' with your actual Docker Hub username
+FROM faazabidi/analysis-service-r-base:latest
 
-WORKDIR /app
-
-# Install R and required packages
-RUN apt-get update && apt-get install -y \
-    r-base \
-    r-base-dev \
-    libxml2-dev \
-    libcurl4-openssl-dev \
-    libssl-dev \
-    libgit2-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install required R packages
-RUN R -e "install.packages(c('dplyr', 'jsonlite', 'here', 'e1071', 'rio'), repos='https://cloud.r-project.org/')" && \
-    R -e "install.packages('mlr', dependencies=TRUE, repos='https://cloud.r-project.org/')"
-
+# Copy Python requirements and install them
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy application code
 COPY . .
 
 # Command will be overridden in docker-compose.yml

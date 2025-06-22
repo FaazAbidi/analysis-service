@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # Redis service (message broker)
   redis:
@@ -13,7 +11,7 @@ services:
 
   # Flask web application
   web:
-    build: .
+    image: analysis-service:latest
     command: gunicorn app:app --bind 0.0.0.0:8080 --reload --access-logfile - --error-logfile -
     ports:
       - "8080:8080"
@@ -26,7 +24,7 @@ services:
 
   # Celery worker
   worker:
-    build: .
+    image: analysis-service:latest
     command: celery --app tasks worker --loglevel info --concurrency 4
     depends_on:
       - redis
