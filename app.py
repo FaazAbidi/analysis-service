@@ -65,8 +65,8 @@ def pre_analysis():
         threshold_check_dimensionality = request_json.get("threshold_check_dimensionality")
         threshold_check_multicollinearity = request_json.get("threshold_check_multicollinearity")
         
-        if not task_id or not columns or not model:
-            missing_fields = [field for field in ["task_id", "columns", "model"] if not request_json.get(field)]
+        if not task_id or not model:
+            missing_fields = [field for field in ["task_id", "model"] if not request_json.get(field)]
             return jsonify({"error": f"Missing required data: {', '.join(missing_fields)}"}), 400
 
         task = pre_analysis_with_r.delay(task_id, columns, target, model, threshold_check_categorical, threshold_check_skewness, threshold_sampling, threshold_check_dimensionality, threshold_check_multicollinearity)
