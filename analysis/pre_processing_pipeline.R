@@ -38,7 +38,73 @@ main <- function(
     output_data_path
 ) {
   
-  params <- fromJSON(params_path)
+  # === R SCRIPT JSON DEBUGGING ===
+  cat("=== R SCRIPT JSON DEBUG INFO ===\n")
+  cat("Params file path received:", params_path, "\n")
+  cat("Current working directory:", getwd(), "\n")
+  cat("File exists:", file.exists(params_path), "\n")
+  
+  if (file.exists(params_path)) {
+    # Get file info
+    file_info <- file.info(params_path)
+    cat("File size:", file_info$size, "bytes\n")
+    cat("File permissions:", sprintf("%o", file_info$mode), "\n")
+    
+    # Try to read raw content
+    tryCatch({
+      raw_content <- readLines(params_path, warn = FALSE)
+      cat("Raw content lines:", length(raw_content), "\n")
+      full_content <- paste(raw_content, collapse = "")
+      cat("Full content length:", nchar(full_content), "characters\n")
+      cat("Full content:", full_content, "\n")
+      
+      # Check for common JSON issues
+      if (nchar(full_content) == 0) {
+        cat("ERROR: File is empty!\n")
+      } else if (!grepl("^\\s*\\{", full_content)) {
+        cat("ERROR: Content doesn't start with '{'\n")
+      } else if (!grepl("\\}\\s*$", full_content)) {
+        cat("ERROR: Content doesn't end with '}'\n")
+      } else {
+        cat("Content appears to be valid JSON format\n")
+      }
+    }, error = function(e) {
+      cat("ERROR reading raw content:", e$message, "\n")
+    })
+  } else {
+    cat("ERROR: File does not exist!\n")
+    
+    # List contents of directory containing the file
+    parent_dir <- dirname(params_path)
+    cat("Parent directory:", parent_dir, "\n")
+    cat("Parent directory exists:", dir.exists(parent_dir), "\n")
+    
+    if (dir.exists(parent_dir)) {
+      cat("Contents of parent directory:\n")
+      files <- list.files(parent_dir, full.names = TRUE, all.files = TRUE)
+      for (f in files) {
+        if (file.exists(f)) {
+          info <- file.info(f)
+          cat("  -", basename(f), "(", info$size, "bytes )\n")
+        }
+      }
+    }
+  }
+  
+  cat("=== ATTEMPTING JSON PARSING ===\n")
+  
+  params <- tryCatch({
+    result <- fromJSON(params_path)
+    cat("JSON parsing successful!\n")
+    cat("JSON keys:", paste(names(result), collapse = ", "), "\n")
+    result
+  }, error = function(e) {
+    cat("JSON parsing ERROR:", e$message, "\n")
+    stop("Failed to parse JSON: ", e$message)
+  })
+  
+  cat("=== END R SCRIPT JSON DEBUG INFO ===\n")
+  
   relevant_columns <- names(params$columns)
   column_details <- get_column_details_from_json(params)
   technique <- params$technique
