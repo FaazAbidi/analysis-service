@@ -19,13 +19,14 @@ logger = logging.getLogger(__name__)
 
 
 @app.task
-def process_with_r(task_method_id: int, user_id: str, json_file_path: str):
+def process_with_r(task_method_id: int, user_id: str, json_data: dict):
     """
     Process data with R script in the background.
 
     Args:
-        data_dict (dict): Dictionary containing data to process
-        output_filename (str, optional): Name for the output file. If None, a timestamp-based name is used.
+        task_method_id (int): ID of the task method
+        user_id (str): User ID
+        json_data (dict): JSON data directly instead of file path
 
     Returns:
         dict: The processed data from R
@@ -134,63 +135,40 @@ def process_with_r(task_method_id: int, user_id: str, json_file_path: str):
         os.makedirs(output_directory_path, exist_ok=True)
         output_file_path = os.path.join(output_directory_path, file_name)
 
-        # === JSON FILE DEBUGGING ===
-        logger.info("=== JSON FILE DEBUG INFO ===")
-        logger.info(f"JSON file path received: {json_file_path}")
-        logger.info(f"JSON file absolute path: {os.path.abspath(json_file_path) if json_file_path else 'None'}")
+        # === CREATE JSON FILE IN WORKER CONTAINER ===
+        logger.info("=== JSON FILE CREATION IN WORKER ===")
+        logger.info(f"Received JSON data: {json_data}")
+        logger.info(f"JSON data type: {type(json_data)}")
         logger.info(f"Current working directory: {os.getcwd()}")
-        logger.info(f"JSON file exists: {os.path.exists(json_file_path) if json_file_path else 'False'}")
         
-        if json_file_path and os.path.exists(json_file_path):
-            try:
+        # Create JSON file in worker container's temp directory
+        import tempfile
+        temp_json_dir = tempfile.mkdtemp(prefix="json_")
+        json_file_path = os.path.join(temp_json_dir, "request_data.json")
+        
+        logger.info(f"Creating temporary JSON file at: {json_file_path}")
+        
+        try:
+            with open(json_file_path, "w") as f:
+                json.dump(json_data, f, indent=2)
+            
+            # Verify file creation
+            if os.path.exists(json_file_path):
                 file_stats = os.stat(json_file_path)
-                logger.info(f"JSON file size: {file_stats.st_size} bytes")
-                logger.info(f"JSON file permissions: {oct(file_stats.st_mode)[-3:]}")
+                logger.info(f"JSON file created successfully - size: {file_stats.st_size} bytes")
                 
-                # Read and log file content
+                # Read back to verify
                 with open(json_file_path, 'r') as f:
                     content = f.read()
-                    logger.info(f"JSON file full content: {content}")
-                    logger.info(f"JSON file content length: {len(content)} characters")
-                    
-                # Try to parse JSON to check validity
-                try:
-                    parsed = json.loads(content)
-                    logger.info(f"JSON parsing successful. Keys: {list(parsed.keys()) if isinstance(parsed, dict) else 'Not a dict'}")
-                except json.JSONDecodeError as je:
-                    logger.error(f"JSON parsing failed: {je}")
-                    logger.error(f"JSON error at position: {je.pos if hasattr(je, 'pos') else 'unknown'}")
-                    
-            except Exception as e:
-                logger.error(f"Error reading JSON file: {e}")
-        else:
-            logger.error("JSON file does not exist or path is None!")
-            
-        # List contents of json directory if it exists
-        json_dir = os.path.dirname(json_file_path) if json_file_path else None
-        if json_dir and os.path.exists(json_dir):
-            logger.info(f"Contents of JSON directory {json_dir}:")
-            try:
-                for item in os.listdir(json_dir):
-                    item_path = os.path.join(json_dir, item)
-                    logger.info(f"  - {item} (size: {os.path.getsize(item_path)} bytes)")
-            except Exception as e:
-                logger.error(f"Error listing JSON directory: {e}")
-        else:
-            logger.error(f"JSON directory does not exist: {json_dir}")
-            
-        # List contents of current directory
-        logger.info("Contents of current working directory:")
-        try:
-            for item in os.listdir('.'):
-                if os.path.isdir(item):
-                    logger.info(f"  [DIR] {item}")
-                else:
-                    logger.info(f"  [FILE] {item} (size: {os.path.getsize(item)} bytes)")
+                    logger.info(f"JSON file content verified - length: {len(content)} characters")
+            else:
+                raise Exception("JSON file was not created")
+                
         except Exception as e:
-            logger.error(f"Error listing current directory: {e}")
+            logger.error(f"Error creating JSON file: {e}")
+            raise
             
-        logger.info("=== END JSON DEBUG INFO ===")
+        logger.info("=== JSON FILE READY FOR R SCRIPT ===")
 
         # # Run the R script as a subprocess
         process = subprocess.Popen(
@@ -210,6 +188,14 @@ def process_with_r(task_method_id: int, user_id: str, json_file_path: str):
             logger.info(f"R script output:\n{stdout}")
         if stderr:
             logger.error(f"R script error:\n{stderr}")
+
+        # Clean up temporary JSON file
+        try:
+            os.remove(json_file_path)
+            os.rmdir(temp_json_dir)
+            logger.info("Temporary JSON file cleaned up")
+        except Exception as e:
+            logger.warning(f"Could not clean up temporary JSON file: {e}")
 
         # # Check if the process was successful
         if process.returncode != 0:
