@@ -155,7 +155,6 @@ def process_with_r(task_method_id: int, user_id: str, json_file_path: str):
                     
                 # Try to parse JSON to check validity
                 try:
-                    import json
                     parsed = json.loads(content)
                     logger.info(f"JSON parsing successful. Keys: {list(parsed.keys()) if isinstance(parsed, dict) else 'Not a dict'}")
                 except json.JSONDecodeError as je:
