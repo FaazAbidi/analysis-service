@@ -24,13 +24,32 @@ def pre_analysis():
 
     Expected JSON input format:
     {
-        "task_id": "12345", 
-        "columns": {            
-            "age": [25, 30, 45],
-            "income": [50000, 60000, 75000]
-        },
-        "target": "income",
-        "model": "linear_regression"
+        "task_id": "1234",
+        "method": "pre_analysis",
+        "model": "Logistic Regression",
+        "target": "num_feature_80",
+        "threshold_check_categorical": 0.3,
+        "threshold_check_skewness": 1,
+        "threshold_sampling": 100,
+        "threshold_check_dimensionality": 0.5,
+        "threshold_check_multicollinearity": 0.8,
+        "columns": {
+            "num_feature_40": {
+            "type": "QUANTITATIVE",
+            "step": null,
+            "value": null
+            },
+            "num_feature_41": {
+            "type": "QUANTITATIVE",
+            "step": null,
+            "value": null
+            },
+            "num_feature_42": {
+            "type": "QUANTITATIVE",
+            "step": null,
+            "value": null
+            }
+        }
     }
     """
     try:
@@ -46,8 +65,8 @@ def pre_analysis():
         threshold_check_dimensionality = request_json.get("threshold_check_dimensionality")
         threshold_check_multicollinearity = request_json.get("threshold_check_multicollinearity")
         
-        if not task_id or not columns or not target or not model:
-            missing_fields = [field for field in ["task_id", "columns", "target", "model"] if not request_json.get(field)]
+        if not task_id or not columns or not model:
+            missing_fields = [field for field in ["task_id", "columns", "model"] if not request_json.get(field)]
             return jsonify({"error": f"Missing required data: {', '.join(missing_fields)}"}), 400
 
         task = pre_analysis_with_r.delay(task_id, columns, target, model, threshold_check_categorical, threshold_check_skewness, threshold_sampling, threshold_check_dimensionality, threshold_check_multicollinearity)
