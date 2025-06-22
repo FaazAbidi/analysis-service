@@ -19,16 +19,21 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 @app.task
-def pre_analysis_with_r(task_id, columns, target, model):
+def pre_analysis_with_r(task_id, columns, target, model, threshold_check_categorical, threshold_check_skewness, threshold_sampling, threshold_check_dimensionality, threshold_check_multicollinearity):
     """
     Process data and run R script in the background.
 
     Args:
         task_id (str): The unique task identifier.
-        columns (list): Columns to be used for analysis.
-        target (str): Target column for prediction.
-        model (str): Model type for analysis.
-
+        columns (list): List of columns to be used for analysis.
+        target (str): The target column for prediction.
+        model (str): The model type for analysis, e.g., 'linear_regression', 'decision_tree', etc.
+        threshold_check_categorical (float): The threshold for checking categorical data.
+        threshold_check_skewness (float): The threshold for checking skewness in data.
+        threshold_sampling (int): The threshold for the number of samples.
+        threshold_check_dimensionality (float): The threshold for checking data dimensionality.
+        threshold_check_multicollinearity (float): The threshold for checking multicollinearity.
+        
     Returns:
         dict: Processed recommendations or error message.
     """
@@ -103,7 +108,13 @@ def pre_analysis_with_r(task_id, columns, target, model):
             "target": target,
             "model": model,
             "task_id": task_id,
+            "threshold_check_categorical": threshold_check_categorical,
+            "threshold_check_skewness": threshold_check_skewness,
+            "threshold_sampling": threshold_sampling,
+            "threshold_check_dimensionality": threshold_check_dimensionality,
+            "threshold_check_multicollinearity": threshold_check_multicollinearity
         }
+
         with open(params_file, "w") as f:
             json.dump(params_data, f, indent=4)
 
