@@ -1,0 +1,8 @@
+{ "technique": "data_cleaning",
+  "method": "perform_drop_duplicates",
+  "step": null,
+  "value": "row",
+  "taskMethodId": "213",
+  "target": null,
+  "columns": null
+}
