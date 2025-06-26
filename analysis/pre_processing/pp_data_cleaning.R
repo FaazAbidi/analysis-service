@@ -282,6 +282,23 @@ fix_inconsistencies <- function(data, column_details, method) {
   return(data)
 }
 
+
+perform_drop_duplicates <- function(df, by = c("row", "column")) {
+  # Ensure 'by' is either "row" or "column"
+  by <- match.arg(by)
+  
+  if (by == "row") {
+    # Remove duplicate rows
+    df <- df[!duplicated(df), ]
+  } else if (by == "column") {
+    # Remove duplicate columns
+    df <- df[, !duplicated(colnames(df))]
+  }
+  
+  return(df)
+}
+
+
 data_cleaning <- function(data,
                           column_details,
                           method,
@@ -289,6 +306,11 @@ data_cleaning <- function(data,
                           value,
                           target) {
   func = get(method)
-  result = func(data, column_details, method)
+  if (method == "perform_drop_duplicates") {
+    result = func(data, value)
+  }
+  else {
+    result = func(data, column_details, method)
+  }
   return(result)
 }

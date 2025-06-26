@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 from flask import Flask, jsonify, request, render_template
-from tasks import process_with_r
+from tasks import process_with_r, pre_analysis_with_r
 from celery.result import AsyncResult
 import os
 import traceback
@@ -15,6 +15,69 @@ CORS(app)
 @app.route("/", methods=["GET", "POST"])
 def index():
     return render_template("index.html")
+
+
+@app.route("/pre-analysis", methods=["POST"])
+def pre_analysis():
+    """
+    Purpose: Endpoint to generate preprocessing recommendations using R script.
+
+    Expected JSON input format:
+    {
+        "task_id": "1234",
+        "method": "pre_analysis",
+        "model": "Logistic Regression",
+        "target": "num_feature_80",
+        "threshold_check_categorical": 0.3,
+        "threshold_check_skewness": 1,
+        "threshold_sampling": 100,
+        "threshold_check_dimensionality": 0.5,
+        "threshold_check_multicollinearity": 0.8,
+        "columns": {
+            "num_feature_40": {
+            "type": "QUANTITATIVE",
+            "step": null,
+            "value": null
+            },
+            "num_feature_41": {
+            "type": "QUANTITATIVE",
+            "step": null,
+            "value": null
+            },
+            "num_feature_42": {
+            "type": "QUANTITATIVE",
+            "step": null,
+            "value": null
+            }
+        }
+    }
+    """
+    try:
+        request_json = request.get_json()
+ 
+        task_id = request_json.get("task_id")
+        columns = request_json.get("columns")
+        target = request_json.get("target")
+        model = request_json.get("model")
+        threshold_check_categorical = request_json.get("threshold_check_categorical")
+        threshold_check_skewness = request_json.get("threshold_check_skewness")
+        threshold_sampling = request_json.get("threshold_sampling")
+        threshold_check_dimensionality = request_json.get("threshold_check_dimensionality")
+        threshold_check_multicollinearity = request_json.get("threshold_check_multicollinearity")
+        
+        if not task_id or not model:
+            missing_fields = [field for field in ["task_id", "model"] if not request_json.get(field)]
+            return jsonify({"error": f"Missing required data: {', '.join(missing_fields)}"}), 400
+
+        task = pre_analysis_with_r.delay(task_id, columns, target, model, threshold_check_categorical, threshold_check_skewness, threshold_sampling, threshold_check_dimensionality, threshold_check_multicollinearity)
+
+        return jsonify({
+            "task_id": task.id, 
+            "message": "Pre analysis task submitted successfully"
+        })
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/preprocess", methods=["POST"])
