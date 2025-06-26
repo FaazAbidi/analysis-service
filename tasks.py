@@ -153,7 +153,7 @@ def pre_analysis_with_r(task_id, columns, target, model, threshold_check_categor
 
         # Step 9: Update recommendations in the database
         update_data = {
-            "config": recommendations_data,
+            "pre_analysis": recommendations_data,
         }
         update_response = supabase.table('TaskMethods') \
             .update(update_data) \
@@ -168,7 +168,6 @@ def pre_analysis_with_r(task_id, columns, target, model, threshold_check_categor
 
         # Step 10: Return success response
         return {
-            "result": recommendations_data,
             "success": True
         }
 

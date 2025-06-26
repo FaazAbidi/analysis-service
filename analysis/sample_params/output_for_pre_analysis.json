@@ -1,0 +1,140 @@
+{
+    "pa_cleaning": {
+        "outliers": {
+            "outlier_info": [
+                {
+                    "count": 44,
+                    "column": "fixed acidity"
+                },
+                {
+                    "count": 14,
+                    "column": "volatile acidity"
+                },
+                {
+                    "count": 1,
+                    "column": "citric acid"
+                },
+                {
+                    "count": 110,
+                    "column": "residual sugar"
+                },
+                {
+                    "count": 77,
+                    "column": "chlorides"
+                },
+                {
+                    "count": 18,
+                    "column": "free sulfur dioxide"
+                },
+                {
+                    "count": 40,
+                    "column": "total sulfur dioxide"
+                },
+                {
+                    "count": 36,
+                    "column": "density"
+                },
+                {
+                    "count": 20,
+                    "column": "pH"
+                },
+                {
+                    "count": 43,
+                    "column": "sulphates"
+                },
+                {
+                    "count": 12,
+                    "column": "alcohol"
+                },
+                {
+                    "count": 22,
+                    "column": "quality"
+                }
+            ],
+            "recommendation": "Outliers detected: consider removing or replacing outliers for Logistic Regression."
+        },
+        "duplicates": {
+            "count": 0,
+            "exists": false,
+            "recommendation": "No duplicates found."
+        },
+        "inconsistencies": {
+            "recommendation": "No inconsistent values detected for Logistic Regression.",
+            "inconsistent_info": []
+        },
+        "missing_columns": {
+            "missing_info": [],
+            "recommendation": "No missing values in any column for Logistic Regression."
+        },
+        "missing_overall": {
+            "count": 0,
+            "exists": false,
+            "recommendation": "No missing values found for Logistic Regression."
+        }
+    },
+    "pa_reduction": {
+        "is_pca_required": [],
+        "is_sampling_required": true,
+        "multicollinearity_exists": {},
+        "high_dimensionality_exists": false
+    },
+    "pa_transformation": {
+        "skewed_columns": {
+            "columns": [
+                "fixed acidity",
+                "residual sugar",
+                "chlorides",
+                "free sulfur dioxide",
+                "total sulfur dioxide",
+                "sulphates"
+            ],
+            "recommendation": "Apply transformations to remove skewness for Logistic Regression."
+        },
+        "columns_require_normalization": {
+            "columns": [
+                "fixed acidity",
+                "volatile acidity",
+                "citric acid",
+                "residual sugar",
+                "chlorides",
+                "free sulfur dioxide",
+                "total sulfur dioxide",
+                "density",
+                "pH",
+                "sulphates",
+                "alcohol",
+                "quality",
+                "Id"
+            ],
+            "recommendation": "Apply normalization to numeric columns for Logistic Regression."
+        },
+        "columns_require_standardization": {
+            "columns": [
+                "fixed acidity",
+                "volatile acidity",
+                "citric acid",
+                "residual sugar",
+                "chlorides",
+                "free sulfur dioxide",
+                "total sulfur dioxide",
+                "density",
+                "pH",
+                "sulphates",
+                "alcohol",
+                "quality",
+                "Id"
+            ],
+            "recommendation": "Apply standardization to numeric columns for Logistic Regression."
+        }
+    },
+    "pa_feature_engineering": {
+        "columns_require_label_encoding": {
+            "columns": {},
+            "recommendation": "No categorical columns requiring encoding for Logistic Regression."
+        },
+        "columns_require_one_hot_encoding": {
+            "columns": {},
+            "recommendation": "No categorical columns requiring encoding for Logistic Regression."
+        }
+    }
+}
