@@ -57,11 +57,6 @@ def pre_analysis_with_r(task_id, columns, target, model, threshold_check_categor
             logger.error(f"No matching task found with ID: {task_id}")
             return {"error": "No matching task found", "success": False}
 
-        # Check if 'name' matches 'Original data'
-        if task_data[0]['name'] != 'Original data':
-            logger.warning(f"Invalid task type for ID {task_id}: Expected 'Original data', got '{task_data[0]['name']}'")
-            return {"error": "This is not the original data file. Please verify the task details.", "success": False}
-
         # Step 2: Fetch processed file
         processed_file = task_data[0].get('processed_file')
         if not processed_file:
