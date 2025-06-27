@@ -57,6 +57,11 @@ def pre_analysis_with_r(task_id, columns, target, model, threshold_check_categor
             logger.error(f"No matching task found with ID: {task_id}")
             return {"error": "No matching task found", "success": False}
 
+        bucket_name = 'processed-data'
+        # Check if 'name' matches 'Original data'
+        if task_data[0]['name'] == 'Original data':
+            bucket_name = 'raw-data'
+
         # Step 2: Fetch processed file
         processed_file = task_data[0].get('processed_file')
         if not processed_file:
@@ -86,7 +91,7 @@ def pre_analysis_with_r(task_id, columns, target, model, threshold_check_categor
         # Step 5: Download file from Supabase storage
         logger.info(f"Downloading file from Supabase storage: {file_path}")
         os.makedirs(os.path.dirname(local_file_path), exist_ok=True)
-        file_content = supabase.storage.from_('raw-data').download(file_path)
+        file_content = supabase.storage.from_(bucket_name).download(file_path)
         with open(local_file_path, "wb+") as f:
             f.write(file_content)
 
