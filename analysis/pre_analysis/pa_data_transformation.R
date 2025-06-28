@@ -11,8 +11,7 @@ check_skewness <- function(
     column_types = NULL,
     threshold_check_skewness = DEFAULT_THRESHOLD_CHECK_SKEWNESS
 ) {
-  library(jsonlite)
-  skewed_columns <- c()
+  skewed_columns <- list()
   
   
   # Use the default threshold if NULL
@@ -87,8 +86,7 @@ check_standardization <- function(
     model,
     column_types = NULL
 ) {
-  library(jsonlite)
-  standardized_columns <- c()
+  standardized_columns <- list()
   
   # Parse column_types if it's a JSON string
   if (!is.null(column_types) && is.character(column_types)) {
@@ -146,8 +144,7 @@ check_normalization <- function(
     model,
     column_types = NULL
 ) {
-  library(jsonlite)
-  normalization_columns <- c()
+  normalization_columns <- list()
   
   # Parse JSON string if necessary
   if (!is.null(column_types) && is.character(column_types)) {

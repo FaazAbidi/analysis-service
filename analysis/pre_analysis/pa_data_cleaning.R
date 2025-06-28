@@ -109,7 +109,6 @@ check_outliers <- function(
     model,
     column_types = NULL
 ) {
-  library(jsonlite)
   
   # If column_types is a JSON string, parse it into a list of lists
   if (!is.null(column_types) && is.character(column_types)) {
@@ -200,7 +199,6 @@ check_inconsistencies <- function(
     model,
     column_types = NULL
 ) {
-  library(jsonlite)
   
   # Parse JSON if necessary
   if (!is.null(column_types) && is.character(column_types)) {
