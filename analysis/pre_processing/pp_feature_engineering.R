@@ -12,9 +12,9 @@ equal_width <- function(col, col_name, bin_size) {
   # Generate bin labels (e.g., "12 ≤ age < 24")
   bin_labels <- sapply(1:(length(bin_breaks) - 1), function(i) {
     if (i == length(bin_breaks) - 1) {
-      paste(bin_breaks[i], "≤", col_name, "≤", bin_breaks[i + 1])
+      paste(bin_breaks[i], "<=", col_name, "<=", bin_breaks[i + 1])
     } else {
-      paste(bin_breaks[i], "≤", col_name, "<", bin_breaks[i + 1])
+      paste(bin_breaks[i], "<=", col_name, "<", bin_breaks[i + 1])
     }
   })
   
@@ -43,9 +43,9 @@ equal_depth <- function(col, col_name, bin_size) {
   # Generate bin labels (last bin includes upper bound)
   bin_labels <- sapply(1:(length(bin_boundaries) - 1), function(i) {
     if (i == length(bin_boundaries) - 1) {
-      paste(bin_boundaries[i], "≤", col_name, "≤", bin_boundaries[i + 1])
+      paste(bin_boundaries[i], "<=", col_name, "<=", bin_boundaries[i + 1])
     } else {
-      paste(bin_boundaries[i], "≤", col_name, "<", bin_boundaries[i + 1])
+      paste(bin_boundaries[i], "<=", col_name, "<", bin_boundaries[i + 1])
     }
   })
   
