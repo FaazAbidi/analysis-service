@@ -23,7 +23,7 @@ check_multicollinearity <- function(
     column_types = NULL,
     threshold_multicollinearity = DEFAULT_THRESHOLD_CHECK_MULTICOLLINEARITY
 ) {
-  if (is.null(target)) return(NULL)
+  if (is.null(target)) return(FALSE)
   
   # Use the default threshold if NULL
   if (is.null(threshold_multicollinearity)) {

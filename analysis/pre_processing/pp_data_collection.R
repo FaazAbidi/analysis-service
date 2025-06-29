@@ -26,15 +26,12 @@ get_dataframe <- function(file_path) {
   
   if (ext == "csv") {
     if (sep == ",") {
-      first_line <- readLines(file_path, n = 1)
-      col_names  <- unlist(strsplit(first_line, ",", fixed = TRUE))
       data <- read.csv(
         file_path,
         na.strings     = na_columns,
         stringsAsFactors = FALSE,
         sep            = sep
       )
-      names(data) <- col_names
     } else {
       data <- import(
         file_path,
