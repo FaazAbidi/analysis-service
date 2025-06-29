@@ -56,7 +56,8 @@ check_skewness <- function(
     
     if (length(numeric_column) == 0) next
     
-    skew_value <- e1071::skewness(numeric_column, na.rm = TRUE)
+    skew_value <- skewness(numeric_column, na.rm = TRUE)
+    if (is.na(skew_value) || is.nan(skew_value)) next
     
     if (abs(skew_value) > threshold_check_skewness) {
       skewed_columns <- c(skewed_columns, col_name)

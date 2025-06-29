@@ -20,7 +20,7 @@ detect_separator <- function(file_path,
 }
 
 get_dataframe <- function(file_path) {
-  na_columns <- c("NA", "NaN", "Na", "")
+  na_columns <- c("NA", "na", "Na", "Nan", "NaN", "nan", "", " ", "NULL", "NONE")
   ext        <- tolower(tools::file_ext(file_path))
   sep        <- detect_separator(file_path)
   
