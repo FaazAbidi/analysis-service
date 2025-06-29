@@ -30,13 +30,15 @@ get_dataframe <- function(file_path) {
         file_path,
         na.strings     = na_columns,
         stringsAsFactors = FALSE,
-        sep            = sep
+        sep            = sep,
+        check.names    = FALSE  # Preserve original column names, including duplicates
       )
     } else {
       data <- import(
         file_path,
         na       = na_columns,
-        setclass = "data.frame"
+        setclass = "data.frame",
+        check.names = FALSE  # Pass check.names = FALSE to underlying function
       )
     }
   } else if (ext %in% c("xlsx", "xls", "ods", "txt", "json")) {
@@ -44,7 +46,8 @@ get_dataframe <- function(file_path) {
     data <- import(
       file_path,
       na       = na_columns,
-      setclass = "data.frame"
+      setclass = "data.frame",
+      check.names = FALSE  # Pass check.names = FALSE to underlying function
     )
   } else {
     stop("Unsupported file format: ", ext)
