@@ -23,8 +23,14 @@ pre_analysis <- function(
 ) {
   # Load data and subset relevant columns
   data <- get_dataframe(file_path)
+  
   if (length(relevant_columns) > 0) {
-    data <- data[, relevant_columns, drop = FALSE]
+    all_indices <- seq_along(data)
+    relevant_indices <- as.integer(sapply(strsplit(relevant_columns, "\\$"), function(x) x[2]))
+    indices_to_remove <- sort(setdiff(all_indices, relevant_indices), decreasing = TRUE)
+    for (index_del in indices_to_remove) {
+      data[[index_del]] <- NULL
+    }
   }
   
   # Perform analysis steps
@@ -41,10 +47,7 @@ pre_analysis <- function(
     pa_reduction = pa_reduction
   )
   
-  # Return JSON string of results
   return(toJSON(result, pretty = TRUE, auto_unbox = TRUE))
-  # Alternatively, return raw list if preferred:
-  # return(result)
 }
 
 main <- function(
@@ -119,12 +122,12 @@ quit(status = status)
 
 # ############################## FOR TESTING LOCALLY #############################
 # ################################ WILL BE REMOVED ###############################
-# cwd = "C:/Users/ahsan/Documents/My Data (without drive)/analysis-service"
+# cwd = "C:/Users/ahsan/Documents/My_Data_Local/analysis-service"
 # cat("Current working directory:", getwd(), "\n")
 # start_time <- Sys.time()
 # main(
-#   file.path(cwd,"analysis", "input", "input_for_pre_analysis.json"),
-#   file.path(cwd,"analysis", "input", "wine.csv"),
+#   file.path(cwd,"analysis", "input", "input_for_pre_analysis_synthetic.json"),
+#   file.path(cwd,"analysis", "input", "synthetic_dataset.csv"),
 #   file.path(cwd,"analysis", "output", "pre_analysis_output.json")
 # )
 # end_time <- Sys.time()

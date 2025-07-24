@@ -2,7 +2,6 @@ source("analysis/utils/cons.R")
 
 library(jsonlite)
 
-# Check categorical columns based on heuristic: character or factor with low cardinality
 check_categorical_columns <- function(
     data,
     model,
@@ -11,12 +10,10 @@ check_categorical_columns <- function(
     threshold_check_categorical = DEFAULT_PERCENTAGE_CHECK_CATEGORICAL
 ) {
   
-  # Use the default threshold if NULL
   if (is.null(threshold_check_categorical)) {
     threshold_check_categorical <- DEFAULT_PERCENTAGE_CHECK_CATEGORICAL
   }
   
-  # Parse column_types if it’s a JSON string
   if (!is.null(column_types) && is.character(column_types)) {
     parsed <- fromJSON(column_types)
     if (is.data.frame(parsed)) {
@@ -26,14 +23,14 @@ check_categorical_columns <- function(
     }
   }
   
-  qualitative_cols <- list()
+  qualitative_indices <- c()
   
   num_pattern <- "^[+-]?[0-9]*\\.?[0-9]+$"
   
-  for (col_name in colnames(data)) {
+  for (idx in seq_along(colnames(data))) {
+    col_name <- colnames(data)[idx]
     col_type <- NULL
     
-    # respect any explicit column_types declarations
     if (!is.null(column_types)) {
       matched <- Filter(function(entry) {
         is.list(entry) && !is.null(entry[["column"]]) && entry[["column"]] == col_name
@@ -41,29 +38,28 @@ check_categorical_columns <- function(
       
       if (length(matched) > 0) {
         col_type <- matched[[1]][["type"]]
-        # if it’s declared but not QUALITATIVE, skip
         if (col_type != "QUALITATIVE") next
       }
     }
     
-    # if no explicit type, require character or factor
     if (is.null(col_type)) {
       if (!(is.character(data[[col_name]]) || is.factor(data[[col_name]]))) next
-      
-      # convert factor to character for uniformity
       col_values <- as.character(data[[col_name]])
-      # if any non-missing value matches a numeric pattern, skip this column
       if (any(!is.na(col_values) & grepl(num_pattern, col_values))) next
     }
     
-    qualitative_cols <- c(qualitative_cols, col_name)
+    qualitative_indices <- c(qualitative_indices, idx)
   }
   
-  cat_cols <- Filter(function(col_name) {
-    col <- data[[col_name]]
+  cat_cols_indices <- Filter(function(idx) {
+    col <- data[[colnames(data)[idx]]]
     (is.character(col) || is.factor(col)) &&
       length(unique(col)) < threshold_check_categorical * nrow(data)
-  }, qualitative_cols)
+  }, qualitative_indices)
+  
+  cat_cols <- lapply(cat_cols_indices, function(idx) {
+    paste0(colnames(data)[idx], "$", idx)
+  })
   
   recommendation <- paste0("No categorical columns requiring encoding for ", model, ".")
   
@@ -90,7 +86,6 @@ check_categorical_columns <- function(
   return(list(columns = cat_cols, recommendation = recommendation))
 }
 
-# Aggregate feature engineering checks
 pre_analysis_feature_engineering <- function(
     data,
     model,
