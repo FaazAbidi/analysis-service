@@ -120,7 +120,7 @@ perform_one_hot_encoding <- function(data, column_details, step, value) {
       col_indices_to_delete <- c(col_indices_to_delete, col_index)
     }
   }
-  
+  col_indices_to_delete = sort(col_indices_to_delete, decreasing = TRUE)
   for (index_del in col_indices_to_delete) {
     data[[index_del]] <- NULL
   }
